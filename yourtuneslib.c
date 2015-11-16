@@ -24,9 +24,25 @@
 #endif
 
 #define MAX_PATH_LENGTH 256
+#define MAX_COMMAND_LENGTH 256
+#define MAX_INFO_LENGTH 256
 #define rootDir "/mnt/.fuse_remote\0"
+
+typedef struct songInfo {
+    char title[MAX_INFO_LENGTH];
+    char track[MAX_INFO_LENGTH];
+    char artist[MAX_INFO_LENGTH];
+    char album[MAX_INFO_LENGTH];
+    char year[MAX_INFO_LENGTH];
+    char comment[MAX_INFO_LENGTH];
+    char genre[MAX_INFO_LENGTH];
+} songInfo;
+
 char realPath[MAX_PATH_LENGTH];
 char newRealPath[MAX_PATH_LENGTH];
+songInfo currentSongInfo;
+
+
 
 static void ytl_realPath(char pathBuffer[], const char *path)
 {
@@ -34,13 +50,30 @@ static void ytl_realPath(char pathBuffer[], const char *path)
     strncat(pathBuffer, path, MAX_PATH_LENGTH - strlen(pathBuffer));
 }
 
+static void extractInfo(FILE* fp, char* lineBuffer, char* destination)
+{
+    int needSpace = 0;
+    while(fscanf(fp, "%s", lineBuffer) == 1)
+    {            
+        if(strpbrk(lineBuffer, ":") == NULL) 
+        {
+            if(needSpace)
+                strncat(destination, " ", MAX_INFO_LENGTH - strlen(destination));
+            strncat(destination, lineBuffer, MAX_INFO_LENGTH - strlen(destination));
+        }
+        else
+           return;//linebuffer ready to check without another scan                 
+        needSpace = 1;
+    }
+}
+
 static void getFileInfo(const char* realPath)
 {
-    printf("getting file info for %s\n", realPath);
+    printf("***getting file info for %s***\n", realPath);
     FILE *fp;
     char lineBuffer[1024];
-    char command[256];
-    snprintf(command, 256, "mp3info \"%s\"\n", realPath);
+    char command[MAX_COMMAND_LENGTH];
+    snprintf(command, MAX_COMMAND_LENGTH, "mp3info \"%s\"\n", realPath);
     
     fp = popen(command, "r");
     if(fp == NULL) 
@@ -53,10 +86,46 @@ static void getFileInfo(const char* realPath)
     while(!feof(fp))
     {        
         if(fscanf(fp, "%s", lineBuffer) != 1)
-            break;
-        printf("%s \n", lineBuffer);
+            break;        
+        //0 is equal
+        if(strcmp(lineBuffer, "Title:") == 0)
+        {
+            currentSongInfo.title[0] = '\0';
+            extractInfo(fp, lineBuffer, currentSongInfo.title);            
+        }
+        if(strcmp(lineBuffer, "Track:") == 0)
+        {
+            currentSongInfo.track[0] = '\0';
+            extractInfo(fp, lineBuffer, currentSongInfo.track);
+        }
+        if(strcmp(lineBuffer, "Artist:") == 0)
+        {
+            currentSongInfo.artist[0] = '\0';
+            extractInfo(fp, lineBuffer, currentSongInfo.artist);
+        }
+        if(strcmp(lineBuffer, "Album:") == 0)
+        {
+            currentSongInfo.album[0] = '\0';
+            extractInfo(fp, lineBuffer, currentSongInfo.album);
+        }
+        if(strcmp(lineBuffer, "Year:") == 0)
+        {
+            currentSongInfo.year[0] = '\0';
+            extractInfo(fp, lineBuffer, currentSongInfo.year);
+        }
+        if(strcmp(lineBuffer, "Comment:") == 0)
+        {
+            currentSongInfo.comment[0] = '\0';
+            extractInfo(fp, lineBuffer, currentSongInfo.comment);
+        }
+        if(strcmp(lineBuffer, "Genre:") == 0)
+        {
+            currentSongInfo.genre[0] = '\0';
+            extractInfo(fp, lineBuffer, currentSongInfo.genre);
+        }
     }
-
+    printf("ALLINFO: %s %s %s %s %s %s %s \n", currentSongInfo.title, currentSongInfo.track, currentSongInfo.artist,
+        currentSongInfo.album, currentSongInfo.year, currentSongInfo.comment, currentSongInfo.genre);
     pclose(fp);  
 }
 

@@ -14,3 +14,6 @@ sudo pip3 install flask mysqlclient
 # Set up database
 mysql -u root --password=$DEF_ROOT_PASS -e "CREATE DATABASE IF NOT EXISTS ytfs"
 mysql -u root --password=$DEF_ROOT_PASS ytfs < init_db.sql
+
+# Set up filesystem
+mkdir ./data

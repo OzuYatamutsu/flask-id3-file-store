@@ -78,13 +78,13 @@ def db_insert_file(filename, file):
     )
 
 def load_config():
-    global DB_HOST, DB_PORT, DB_USER, DB_PASSWD, DB_DB
+    global SERV_PORT, DATA_DIR, DB_HOST, DB_PORT, DB_USER, DB_PASSWD, DB_DB
     config_data = None
 
     with open(CONFIG_FILE) as config:
         config_data = load(config)
     
-    SERV_PORT = config_data["server"]["port"]
+    SERV_PORT = int(config_data["server"]["port"])
     DATA_DIR = config_data["server"]["data_dir"]
     DB_HOST = config_data["db"]["host"]
     DB_PORT = config_data["db"]["port"]
@@ -97,6 +97,7 @@ if __name__ == "__main__":
     app.config["UPLOAD_FOLDER"] = DATA_DIR
     db, cursor = db_connect()
     if db: print("Connected to database!")
+    print("Starting server on port " + str(SERV_PORT) + "...")
     app.run(
         host = "0.0.0.0",
         port = SERV_PORT

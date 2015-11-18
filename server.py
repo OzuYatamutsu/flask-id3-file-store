@@ -41,7 +41,27 @@ def upload():
 def ls():
     """Lists all files in the datastore recursively by album and decade."""
     ls_dict = {"albums": {}, "decades": {}}
-    # TODO
+    query = "SELECT filename, track, title, artist, album, year FROM ytfs_meta;"
+    cursor.execute(query)
+    
+    for (filename, track, title, artist, album, year) in cursor:
+        if album not in ls_dict["albums"]:
+            ls_dict["albums"][album] = []
+        ls_dict["albums"][album].append({"track": track, "title": title, "path": request.url_root + path.join(app.config["UPLOAD_FOLDER"], filename)})
+
+        decade = 0
+        try:
+            decade = int(year)
+            decade = str(decade - (decade % 10))
+        except ValueError:
+            # Couldn't parse the year
+            decade = "Misc."
+        
+        if decade not in ls_dict["decades"]:
+            ls_dict["decades"][decade] = {}
+        if album not in ls_dict["decades"][decade]:
+            ls_dict["decades"][decade][album] = []
+        ls_dict["decades"][decade][album].append({"track": track, "title": title, "path": request.url_root + path.join(app.config["UPLOAD_FOLDER"], filename)})
 
     return jsonify(**ls_dict)
 

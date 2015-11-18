@@ -17,7 +17,6 @@ DB_PASSWD = ""
 DB_DB = ""
 
 app = Flask(__name__)
-app.config["UPLOAD_FOLDER"] = DATA_DIR
 db = None
 cursor = None
 
@@ -95,6 +94,7 @@ def load_config():
 
 if __name__ == "__main__":
     load_config()
+    app.config["UPLOAD_FOLDER"] = DATA_DIR
     db, cursor = db_connect()
     if db: print("Connected to database!")
     app.run(

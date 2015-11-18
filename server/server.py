@@ -41,7 +41,7 @@ def upload():
 def ls():
     """Lists all files in the datastore recursively by album and decade."""
     ls_dict = {"albums": {}, "decades": {}}
-    query = "SELECT filename, track, title, artist, album, year FROM ytfs_meta;"
+    query = "SELECT filename, track, title, artist, album, year FROM ytfs_meta ORDER BY track ASC;"
     cursor.execute(query)
     
     for (filename, track, title, artist, album, year) in cursor:

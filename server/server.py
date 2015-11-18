@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 from werkzeug import secure_filename
 from os import path
 from json import load # Load config file
@@ -36,6 +36,14 @@ def upload():
         db_insert_file(filename, file)
         return "Got data! Filename=" + filename # Debug
     return "Upload failure!"
+
+@app.route("/ls")
+def ls():
+    """Lists all files in the datastore recursively by album and decade."""
+    ls_dict = {"albums": {}, "decades": {}}
+    # TODO
+
+    return jsonify(**ls_dict)
 
 @app.route("/get_file", methods=["GET"])
 def get_file():

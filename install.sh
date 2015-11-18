@@ -46,7 +46,7 @@ fi
 sudo apt-get install -y python3 python3-pip libmysqlclient-dev
 
 # Get required pip packages
-sudo pip3 install flask mysqlclient eyeD3
+sudo pip3 install flask mysqlclient stagger
 
 # Set up filesystem
 mkdir ./data

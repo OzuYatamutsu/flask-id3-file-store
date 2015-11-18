@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from werkzeug import secure_filename
 from os import path
 from json import load # Load config file
@@ -47,7 +47,11 @@ def ls():
     for (filename, track, title, artist, album, year) in cursor:
         if album not in ls_dict["albums"]:
             ls_dict["albums"][album] = []
-        ls_dict["albums"][album].append({"track": track, "title": title, "path": request.url_root + path.join(app.config["UPLOAD_FOLDER"], filename)})
+        ls_dict["albums"][album].append({
+            "track": track, 
+            "title": title, 
+            "path": request.url_root + path.join("get_file", filename)
+        })
 
         decade = 0
         try:
@@ -61,13 +65,19 @@ def ls():
             ls_dict["decades"][decade] = {}
         if album not in ls_dict["decades"][decade]:
             ls_dict["decades"][decade][album] = []
-        ls_dict["decades"][decade][album].append({"track": track, "title": title, "path": request.url_root + path.join(app.config["UPLOAD_FOLDER"], filename)})
+        ls_dict["decades"][decade][album].append({
+                "track": track, 
+                "title": title, 
+                "path": request.url_root + path.join("get_file", filename)
+        })
 
     return jsonify(**ls_dict)
 
-@app.route("/get_file", methods=["GET"])
-def get_file():
-    pass
+@app.route("/get_file/<path:filename>")
+def get_file(filename):
+    """Retrieves a file."""
+
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 def db_connect():
     """Attempts to connect to the configured database.

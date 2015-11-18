@@ -43,7 +43,7 @@ else
 fi
 
 # Download remaining required packages
-sudo apt-get install -y python3 python3-pip libmysqlclient-dev
+sudo apt-get install -y python3 python3-dev python3-pip libmysqlclient-dev
 
 # Get required pip packages
 sudo pip3 install flask mysqlclient stagger

@@ -156,13 +156,6 @@ static int ytl_access(const char *path, int mask)
 	return 0;
 }
 
-static int ytl_readlink(const char *path, char *buf, size_t size)
-{
-	//I don't think we need linking
-	return 0;
-}
-
-
 static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			   off_t offset, struct fuse_file_info *fi)
 {
@@ -317,7 +310,6 @@ static int ytl_statfs(const char *path, struct statvfs *stbuf)
 static struct fuse_operations ytl_oper = {
 	.getattr	= ytl_getattr,
 	.access		= ytl_access,
-	.readlink	= ytl_readlink,
 	.readdir	= ytl_readdir,
 	.mknod		= ytl_mknod,	 
 	.chmod		= ytl_chmod,

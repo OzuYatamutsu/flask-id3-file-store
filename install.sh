@@ -9,7 +9,7 @@ sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again p
 sudo apt-get install -y python3 python3-pip mysql-server libmysqlclient-dev
 
 # Get required pip packages
-sudo pip3 install flask mysqlclient
+sudo pip3 install flask mysqlclient eyeD3
 
 # Set up database
 mysql -u root --password=$DEF_ROOT_PASS -e "CREATE DATABASE IF NOT EXISTS ytfs"

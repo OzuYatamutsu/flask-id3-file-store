@@ -1,7 +1,9 @@
 from flask import Flask, request
 from werkzeug import secure_filename
 from os import path
+
 import MySQLdb # Case-sensitive. Worst name ever 
+import eyed3 # MP3-only ID3 tag parsing
 
 PORT = 9880 # Debug
 DATA_DIR = "./data"
@@ -50,14 +52,15 @@ def db_connect():
 
 def db_insert_file(filename, file):
     """Reads file metadata and inserts it into the database."""
-    # TODO: Get metadata below
-    track = 0
-    title = "TITLE"
-    artist = "ARTIST"
-    album = "ALBUM"
-    year = "YEAR"
-    genre = "GENRE"
-    track_comment = "COMMENT"
+    
+    id3_file = eyed3.load(path.join(app.config["UPLOAD_FOLDER"], filename))
+    track = id3_file.tag.track_num
+    title = id3_file.tag.title
+    artist = id3_file.tag.artist
+    album = id3_file.tag.album
+    year = id3_file.tag.year
+    genre = id3_file.tag.genre
+    track_comment = id3_file.tag.comment
     
     cursor.execute(
         """INSERT INTO ytfs_meta (

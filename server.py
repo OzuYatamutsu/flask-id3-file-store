@@ -4,7 +4,7 @@ from os import path
 from json import load # Load config file
 from stagger import read_tag # MP3 tag parsing
 from stagger.id3 import *
-
+from stagger.errors import NoTagError # Catch if no ID3 tags to read
 import MySQLdb # Case-sensitive. Worst name ever 
 
 # Config vars - will be populated from config file
@@ -56,9 +56,20 @@ def db_connect():
 
 def db_insert_file(filename, file):
     """Reads file metadata and inserts it into the database."""
-   
-    id3_file = read_tag(path.join(app.config["UPLOAD_FOLDER"], filename))
-    track = id3_file.track
+  
+    id3_file = None
+    
+    try: 
+        id3_file = read_tag(path.join(app.config["UPLOAD_FOLDER"], filename))
+    except NoTagError:
+        # No ID3 tags whatsoever
+        print("Inserting misc file: " + filename)
+        query = "INSERT INTO ytfs_meta (filename) VALUES '{0}');".format(filename)
+        cursor.execute(query)
+        db.commit()
+        return
+
+    track = id3_file.track if id3_file.track is not None else 0
     title = id3_file.title
     artist = id3_file.artist
     album = id3_file.album

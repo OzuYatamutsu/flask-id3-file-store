@@ -45,6 +45,7 @@ def ls():
     cursor.execute(query)
     
     for (filename, track, title, artist, album, year) in cursor:
+        album = album if album != "" else "Misc."
         if album not in ls_dict["albums"]:
             ls_dict["albums"][album] = []
         ls_dict["albums"][album].append({

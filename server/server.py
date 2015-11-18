@@ -64,7 +64,8 @@ def db_connect():
 
 def db_insert_file(filename, file):
     """Reads file metadata and inserts it into the database."""
-  
+ 
+    filename = filename.replace("'", "\\'") 
     id3_file = None
     
     try: 
@@ -78,15 +79,16 @@ def db_insert_file(filename, file):
         return
 
     track = id3_file.track if id3_file.track is not None else 0
-    title = id3_file.title
-    artist = id3_file.artist
-    album = id3_file.album
-    year = id3_file.date
-    genre = id3_file.genre
-    track_comment = id3_file.comment
+    title = id3_file.title.replace("'", "\\'")
+    artist = id3_file.artist.replace("'", "\\'")
+    album = id3_file.album.replace("'", "\\'")
+    year = id3_file.date.replace("'", "\\'")
+    genre = id3_file.genre.replace("'", "\\'")
+    track_comment = id3_file.comment.replace("'", "\\'")
    
     print("Inserting: " + artist + " - " + title) 
     query = "INSERT INTO ytfs_meta (filename, track, title, artist, album, year, genre, track_comment) VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format(filename, track, title, artist, album, year, genre, track_comment)
+    print(query) # Debug
     cursor.execute(query)
     db.commit() # Save changes back to DB
     

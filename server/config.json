@@ -1,0 +1,14 @@
+{
+    "server": {
+        "port": 9880,
+        "data_dir": "./data"
+    },
+
+    "db": {
+        "host": "localhost",
+        "port": 3306,
+        "username": "ytfs_agent",
+        "password": "team14",
+        "db": "ytfs"
+    }
+}

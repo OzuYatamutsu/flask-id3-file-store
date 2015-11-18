@@ -1,18 +1,20 @@
 from flask import Flask, request
 from werkzeug import secure_filename
 from os import path
+from json import load # Load config file
 
 import MySQLdb # Case-sensitive. Worst name ever 
 import eyed3 # MP3-only ID3 tag parsing
 
-PORT = 9880 # Debug
-DATA_DIR = "./data"
-
-# Database credentials
-DB_HOST = "localhost"
-DB_USER = "root" # TODO this is awful
-DB_PASSWD = "team14" # TODO this is more awful
-DB_DB = "ytfs"
+# Config vars - will be populated from config file
+CONFIG_FILE = "./config.json"
+SERV_PORT = 0
+DATA_DIR = ""
+DB_HOST = ""
+DB_PORT = 0
+DB_USER = ""
+DB_PASSWD = "" 
+DB_DB = ""
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = DATA_DIR
@@ -40,9 +42,10 @@ def get_file():
 
 def db_connect():
     """Attempts to connect to the configured database.
-    Returns a db and a cursor object."""
+    Returns a db and a cursor object."""    
     db = MySQLdb.connect(
         host = DB_HOST,
+        port = DB_PORT,
         user = DB_USER,
         passwd = DB_PASSWD,
         db = DB_DB
@@ -75,10 +78,26 @@ def db_insert_file(filename, file):
         )
     )
 
+def load_config():
+    global DB_HOST, DB_PORT, DB_USER, DB_PASSWD, DB_DB
+    config_data = None
+
+    with open(CONFIG_FILE) as config:
+        config_data = load(config)
+    
+    SERV_PORT = config_data["server"]["port"]
+    DATA_DIR = config_data["server"]["data_dir"]
+    DB_HOST = config_data["db"]["host"]
+    DB_PORT = config_data["db"]["port"]
+    DB_USER = config_data["db"]["username"]
+    DB_PASSWD = config_data["db"]["password"]
+    DB_DB = config_data["db"]["db"]
+
 if __name__ == "__main__":
+    load_config()
     db, cursor = db_connect()
     if db: print("Connected to database!")
     app.run(
         host = "0.0.0.0",
-        port = PORT
+        port = SERV_PORT
     )

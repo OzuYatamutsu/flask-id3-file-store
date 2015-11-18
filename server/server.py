@@ -2,9 +2,10 @@ from flask import Flask, request
 from werkzeug import secure_filename
 from os import path
 from json import load # Load config file
+from stagger import read_tag # MP3 tag parsing
+from stagger.id3 import *
 
 import MySQLdb # Case-sensitive. Worst name ever 
-import eyed3 # MP3-only ID3 tag parsing
 
 # Config vars - will be populated from config file
 CONFIG_FILE = "./config.json"
@@ -32,6 +33,7 @@ def upload():
     if file:
         filename = secure_filename(file.filename)
         file.save(path.join(app.config["UPLOAD_FOLDER"], filename))
+        db_insert_file(filename, file)
         return "Got data! Filename=" + filename # Debug
     return "Upload failure!"
 
@@ -54,16 +56,17 @@ def db_connect():
 
 def db_insert_file(filename, file):
     """Reads file metadata and inserts it into the database."""
-    
-    id3_file = eyed3.load(path.join(app.config["UPLOAD_FOLDER"], filename))
-    track = id3_file.tag.track_num
-    title = id3_file.tag.title
-    artist = id3_file.tag.artist
-    album = id3_file.tag.album
-    year = id3_file.tag.year
-    genre = id3_file.tag.genre
-    track_comment = id3_file.tag.comment
-    
+   
+    id3_file = read_tag(path.join(app.config["UPLOAD_FOLDER"], filename))
+    track = id3_file.track
+    title = id3_file.title
+    artist = id3_file.artist
+    album = id3_file.album
+    year = id3_file.date
+    genre = id3_file.genre
+    track_comment = id3_file.comment
+   
+    print("Inserting: " + artist + " - " + title) 
     cursor.execute(
         """INSERT INTO ytfs_meta (
             filename, track, title, artist, 

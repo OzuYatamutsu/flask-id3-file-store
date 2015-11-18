@@ -67,20 +67,12 @@ def db_insert_file(filename, file):
     track_comment = id3_file.comment
    
     print("Inserting: " + artist + " - " + title) 
-    cursor.execute(
-        """INSERT INTO ytfs_meta (
-            filename, track, title, artist, 
-            album, year, genre, track_comment
-        ) VALUES (
-            '%s', %s, '%s', '%s',
-            '%s', '%s', '%s', '%s'
-        )""", (
-            filename, track, title, artist,
-            album, year, genre, track_comment
-        )
-    )
-
-def load_config():
+    query = "INSERT INTO ytfs_meta (filename, track, title, artist, album, year, genre, track_comment) VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format(filename, track, title, artist, album, year, genre, track_comment)
+    cursor.execute(query)
+    db.commit() # Save changes back to DB
+    
+def load_config(
+):
     global SERV_PORT, DATA_DIR, DB_HOST, DB_PORT, DB_USER, DB_PASSWD, DB_DB
     config_data = None
 
@@ -100,7 +92,6 @@ if __name__ == "__main__":
     app.config["UPLOAD_FOLDER"] = DATA_DIR
     db, cursor = db_connect()
     if db: print("Connected to database!")
-    print("Starting server on port " + str(SERV_PORT) + "...")
     app.run(
         host = "0.0.0.0",
         port = SERV_PORT

@@ -45,7 +45,7 @@ songInfo currentSongInfo;
 
 static void ytl_realPath(char pathBuffer[], const char *path)
 {  
-	strcpy(pathBuffer, getCachePath(NULL));
+	getCachePath(pathBuffer, path);
 	printf("REALPATH %s\n", realPath);
 }
 
@@ -324,6 +324,7 @@ static struct fuse_operations ytl_oper = {
 int main(int argc, char *argv[])
 {	
 	printf("STARTIN FUSE\n");
+	initCache();
 	umask(0);
 	return fuse_main(argc, argv, &ytl_oper, NULL);
 }

@@ -79,7 +79,8 @@ Listings are done with these hierarchies:
 ## `POST` to `/upload`
 **Parameters**: **`file_data`** The raw file data.
 
-Uploads a file to the file store. ID3 tags are parsed on the server and the metadata database is updated accordingly.
+Uploads a file to the file store. ID3 tags are parsed on the server and the metadata database is updated accordingly.<br />
+(See `example-post.py` for an example.)
 
 ## `GET` to `/get_file/`_filename_
 **Parameters**: **`filename`** The name of the file (as provided by `/ls` above).

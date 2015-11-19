@@ -5,6 +5,12 @@ This is the backend file store of YTFS.
  * All queries are done through a RESTful web interface (as detailed below).
  * Metadata is served in JSON format.
 
+# Configuration
+See `config.json` for server/database configuration variables.
+
+# Installation
+Run `install.sh`. This requires root system and database credentials (if `mysql-server` is already installed).
+
 # API
 ## `GET` to `/ls`
 **Parameters**: _None._

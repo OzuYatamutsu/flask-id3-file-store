@@ -121,7 +121,6 @@ def db_insert_file(filename, file):
    
     print("Inserting: " + artist + " - " + title) 
     query = "INSERT INTO ytfs_meta (filename, track, title, artist, album, year, genre, track_comment) VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format(filename, track, title, artist, album, year, genre, track_comment)
-    print(query) # Debug
     cursor.execute(query)
     db.commit() # Save changes back to DB
     

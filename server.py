@@ -45,7 +45,7 @@ def ls():
     cursor.execute(query)
     
     for (filename, track, title, artist, album, year) in cursor:
-        album = album if album != "" else "Misc."
+        album = album if album != "" else "Unknown"
         if album not in ls_dict["albums"]:
             ls_dict["albums"][album] = []
         ls_dict["albums"][album].append({
@@ -61,7 +61,7 @@ def ls():
             decade = str(decade - (decade % 10))
         except ValueError:
             # Couldn't parse the year
-            decade = "Misc."
+            decade = "Unknown"
         
         if decade not in ls_dict["decades"]:
             ls_dict["decades"][decade] = {}

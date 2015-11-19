@@ -51,7 +51,7 @@ def ls():
         ls_dict["albums"][album].append({
             "track": track, 
             "title": title, 
-            "path": request.url_root + path.join("get_file", filename)
+            "path": filename
         })
 
         decade = 0
@@ -69,7 +69,7 @@ def ls():
         ls_dict["decades"][decade][album].append({
                 "track": track, 
                 "title": title, 
-                "path": request.url_root + path.join("get_file", filename)
+                "path": filename
         })
 
     return jsonify(**ls_dict)

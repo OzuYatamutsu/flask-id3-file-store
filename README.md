@@ -28,24 +28,28 @@ Listings are done with these hierarchies:
   "albums": {
     "The Black and White Album": [
       {
-        "path": "http://steakscorp.org:9880/get_file/The_Hives_-_Hey_Little_World.mp3",
+        "filename": "The_Hives_-_Hey_Little_World.mp3",
+        "filesize": 8116224,
         "title": "Hey Little World",
         "track": 5
       },
       {
-        "path": "http://steakscorp.org:9880/get_file/The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
+        "filename": "The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
+        "filesize": 6367232,
         "title": "A Stroll Through Hive Manor Corridors",
         "track": 6
-      }
+      }    
     ],
     "Tyrannosaurus Hives": [
       {
-        "path": "http://steakscorp.org:9880/get_file/The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
+        "filename": "The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
+        "filesize": 2908160,
         "title": "Two-Timing Touch And Broken Bones",
         "track": 2
       },
       {
-        "path": "http://steakscorp.org:9880/get_file/The_Hives_-_Diabolic_Scheme.mp3",
+        "filename": "The_Hives_-_Diabolic_Scheme.mp3",
+        "filesize": 4341839,
         "title": "Diabolic Scheme",
         "track": 8
       }
@@ -55,24 +59,28 @@ Listings are done with these hierarchies:
     "2000": {
       "The Black and White Album": [
         {
-          "path": "http://steakscorp.org:9880/get_file/The_Hives_-_Hey_Little_World.mp3",
+          "filename": "The_Hives_-_Hey_Little_World.mp3",
+          "filesize": 8116224,
           "title": "Hey Little World",
           "track": 5
         },
         {
-          "path": "http://steakscorp.org:9880/get_file/The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
+          "filename": "The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
+          "filesize": 6367232,
           "title": "A Stroll Through Hive Manor Corridors",
           "track": 6
-        }
+        } 
       ],
       "Tyrannosaurus Hives": [
         {
-          "path": "http://steakscorp.org:9880/get_file/The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
+          "filename": "The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
+          "filesize": 2908160,
           "title": "Two-Timing Touch And Broken Bones",
           "track": 2
         },
         {
-          "path": "http://steakscorp.org:9880/get_file/The_Hives_-_Diabolic_Scheme.mp3",
+          "filename": "The_Hives_-_Diabolic_Scheme.mp3",
+          "filesize": 4341839,
           "title": "Diabolic Scheme",
           "track": 8
         }

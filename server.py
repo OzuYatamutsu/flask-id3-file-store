@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 from werkzeug import secure_filename
-from os import path
+from os import path, stat
 from json import load # Load config file
 from stagger import read_tag # MP3 tag parsing
 from stagger.id3 import *
@@ -51,7 +51,8 @@ def ls():
         ls_dict["albums"][album].append({
             "track": track, 
             "title": title, 
-            "path": filename
+            "filename": filename,
+            "filesize": stat(path.join(app.config["UPLOAD_FOLDER"], filename)).st_size
         })
 
         decade = 0
@@ -69,7 +70,8 @@ def ls():
         ls_dict["decades"][decade][album].append({
                 "track": track, 
                 "title": title, 
-                "path": filename
+                "filename": filename,
+                "filesize": stat(path.join(app.config["UPLOAD_FOLDER"], filename)).st_size
         })
 
     return jsonify(**ls_dict)

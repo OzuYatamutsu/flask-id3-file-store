@@ -133,11 +133,11 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 {
 	printf("\n\nGET ATTR %s\n\n", path);
 	memset(stbuf, 0, sizeof(struct stat));
-	if(strcmp(path, "/") == 0) 
+	if(strcmp(path, "/") == 0 || strcmp(path, "/Albums") == 0 || strcmp(path, "/Decades") == 0 || strcmp(path, "/All") == 0) 
 	{
 		stbuf->st_mode = S_IFDIR | 0755;	
 	} 
-	else if (strcmp(path, "/Song_Name.mp3") == 0) 
+	else if (strcmp(path, "/All/Song_Name.mp3") == 0) 
 	{
 		stbuf->st_mode = S_IFREG | 0777;
 		stbuf->st_nlink = 1;
@@ -159,10 +159,36 @@ static int ytl_access(const char *path, int mask)
 static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			   off_t offset, struct fuse_file_info *fi)
 {
-	//Go fetch metadata from meta_cache, for now just manually fill
-	//filler(buf, ".", NULL, 0);
-	//filler(buf, "..", NULL, 0);
-	filler(buf, "Song_Name.mp3", NULL, 0);
+	//This one can be hardcoded
+	if(strcmp(path, "/") == 0)
+	{
+		filler(buf, ".", NULL, 0);
+		filler(buf, "..", NULL, 0);
+		filler(buf, "Albums", NULL, 0);
+		filler(buf, "Decades", NULL, 0);
+		filler(buf, "All", NULL, 0);
+	}
+	//Need to get info from cache
+	//get every entry where parentDir = /All 
+	else if(strcmp(path, "/All") == 0) 
+	{
+		filler(buf, ".", NULL, 0);
+		filler(buf, "..", NULL, 0);
+		filler(buf, "Song_Name.mp3", NULL, 0);		
+	}
+	//Get info from cache about existing years
+	//every parentDir = /Decades
+	else if(strcmp(path, "/Decades") == 0) 
+	{
+	}
+	//get info from cache about existing album directories
+	//every parentDir = /Albums
+	else if(strcmp(path, "/Albums") == 0)
+	{
+	}
+	//Handle decades subdirectories
+	//Handle albums subdirectories
+	
 	return 0;
 }
 

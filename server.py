@@ -34,8 +34,8 @@ def upload():
         filename = secure_filename(file.filename)
         file.save(path.join(app.config["UPLOAD_FOLDER"], filename))
         db_insert_file(filename, file)
-        return "Got data! Filename=" + filename # Debug
-    return "Upload failure!"
+        return "0"
+    return "-1"
 
 @app.route("/ls")
 def ls():

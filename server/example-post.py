@@ -1,9 +1,8 @@
 from sys import argv
 from requests import post
-from pprint import pprint
 
 if len(argv) == 2:
-    pprint(
+    print(
         post("http://localhost:9880/upload", files={"file_data": open(argv[1], "rb")})
     )
 else:

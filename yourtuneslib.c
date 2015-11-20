@@ -4,11 +4,6 @@
 #include <config.h>
 #endif
 
-#ifdef linux
-/* For pread()/pwrite()/utimensat() */
-#define _XOPEN_SOURCE 700
-#endif
-
 #include <fuse.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,9 +14,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/time.h>
-#ifdef HAVE_SETXATTR
-#include <sys/xattr.h>
-#endif
 #include "cache_manager.h"
 
 #define MAX_COMMAND_LENGTH 256
@@ -133,11 +125,12 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 {
 	printf("\n\nGET ATTR %s\n\n", path);
 	memset(stbuf, 0, sizeof(struct stat));
-	if(strcmp(path, "/") == 0 || strcmp(path, "/Albums") == 0 || strcmp(path, "/Decades") == 0 || strcmp(path, "/All") == 0) 
+	int type = isDir(path);	
+	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 || strcmp(path, "/decades") == 0 || strcmp(path, "/all") == 0 || type == 1) 
 	{
 		stbuf->st_mode = S_IFDIR | 0755;	
 	} 
-	else if (strcmp(path, "/All/Song_Name.mp3") == 0) 
+	else if (strcmp(path, "/all/Song_Name.mp3") == 0 || type == 0) 
 	{
 		stbuf->st_mode = S_IFREG | 0777;
 		stbuf->st_nlink = 1;
@@ -164,13 +157,13 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	{
 		filler(buf, ".", NULL, 0);
 		filler(buf, "..", NULL, 0);
-		filler(buf, "Albums", NULL, 0);
-		filler(buf, "Decades", NULL, 0);
-		filler(buf, "All", NULL, 0);
+		filler(buf, "albums", NULL, 0);
+		filler(buf, "decades", NULL, 0);
+		filler(buf, "all", NULL, 0);
 	}
 	//Need to get info from cache
 	//get every entry where parentDir = /All 
-	else if(strcmp(path, "/All") == 0) 
+	else if(strcmp(path, "/all") == 0) 
 	{
 		filler(buf, ".", NULL, 0);
 		filler(buf, "..", NULL, 0);
@@ -178,16 +171,32 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	}
 	//Get info from cache about existing years
 	//every parentDir = /Decades
-	else if(strcmp(path, "/Decades") == 0) 
+	else if(strcmp(path, "/decades") == 0) 
 	{
+		filler(buf, ".", NULL, 0);
+		filler(buf, "..", NULL, 0);
+		char* dirName = getDirName("/decades");
+		while(dirName != NULL)
+		{
+			filler(buf, dirName, NULL, 0);
+			printf("fill dir %s\n", dirName);
+			dirName = getDirName("/decades");
+		}
 	}
 	//get info from cache about existing album directories
 	//every parentDir = /Albums
-	else if(strcmp(path, "/Albums") == 0)
+	else if(strcmp(path, "/albums") == 0)
 	{
+		filler(buf, ".", NULL, 0);
+		filler(buf, "..", NULL, 0);
+		char* dirName = getDirName("/albums");
+		while(dirName != NULL)
+		{
+			filler(buf, dirName, NULL, 0);
+			printf("fill dir %s\n", dirName);
+			dirName = getDirName("/albums");
+		}
 	}
-	//Handle decades subdirectories
-	//Handle albums subdirectories
 	
 	return 0;
 }

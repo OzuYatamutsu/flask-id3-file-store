@@ -20,6 +20,8 @@
 	
 	//Extern Methods
 	void getCachePath(char* cachePathBuf, const char* sortedpath);
+	char* getDirName(char* rootDir);
+	int isDir(const char* sortedPath);
 	void initCache(void);
 
 #endif

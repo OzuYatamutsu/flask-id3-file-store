@@ -4,4 +4,4 @@ yourtuneslib
 .deps
 .libs
 test.txt
-/server/*
+/server/data

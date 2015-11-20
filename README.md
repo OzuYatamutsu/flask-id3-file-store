@@ -2,7 +2,7 @@
 YourTunes File System
 
 This project requires `libfuse-dev` and `pkg-config` to be installed, or the Makefile will complain.
-We also need `mp3info` to read MP3 ID3 tags.
+We also need `mp3info` to read MP3 ID3 tags. Additionally we need `curl` and `jq` installed.
 
 //TESTING INFO
 change cache_manager.c getCachePath() to return path to a mp3 on your system

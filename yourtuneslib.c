@@ -38,12 +38,12 @@ songInfo currentSongInfo;
 static void ytl_realPath(char pathBuffer[], const char *path)
 {  
 	getCachePath(pathBuffer, path);
-	printf("REALPATH %s\n", realPath);
+	//printf("REALPATH %s\n", realPath);
 }
 
 static int ytl_getattr(const char *path, struct stat *stbuf)
 {
-	printf("\n\nGET ATTR %s\n\n", path);
+	//printf("\n\nGET ATTR %s\n\n", path);
 	memset(stbuf, 0, sizeof(struct stat));
 	int type = isDir(path);	
 	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 || strcmp(path, "/decades") == 0 || strcmp(path, "/all") == 0 || type == 1) 
@@ -164,7 +164,7 @@ static int ytl_open(const char *path, struct fuse_file_info *fi)
 	//get path from cache
 	ytl_realPath(realPath, path);
 	
-	printf("OPENING REAL PATH %s\n", realPath);
+	//printf("OPENING REAL PATH %s\n", realPath);
 	res = open(realPath, fi->flags);
 	if (res == -1)
 	{
@@ -174,7 +174,7 @@ static int ytl_open(const char *path, struct fuse_file_info *fi)
 	} 
 	else
 	{
-		printf("\n\nOPENED\n\n");
+		//printf("\n\nOPENED\n\n");
 	}
 
 	close(res);
@@ -188,7 +188,7 @@ static int ytl_read(const char *path, char *buf, size_t size, off_t offset,
 	int res;
 
 	(void) fi;
-	printf("\n\nREADING! %s\n\n", path);
+	//printf("\n\nREADING! %s\n\n", path);
 
 	ytl_realPath(realPath, path);
 
@@ -202,10 +202,10 @@ static int ytl_read(const char *path, char *buf, size_t size, off_t offset,
 	res = pread(fd, buf, size, offset);
 	if (res == -1) 
 	{
-		printf("READ ERR %d\n", -errno);
+		//printf("READ ERR %d\n", -errno);
 		res = -errno;
 	}
-	printf("READ OK %s %lx %lx\n", buf, (long)size, (long)offset);
+	//printf("READ OK %s %lx %lx\n", buf, (long)size, (long)offset);
 
 	close(fd);
 	return res;

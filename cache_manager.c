@@ -30,7 +30,7 @@ static void addMetaDirectory(char* parentDir, char* fileName)
 	meta_cache[metaCacheHead].isDir = 1;
 	meta_cache[metaCacheHead].isShared = 1;
 	
-	printf("Added directory parent:\"%s\" name:\"%s\" fullPath:\"%s\"\n", parentDir, fileName, meta_cache[metaCacheHead].sortedPath);
+	//printf("Added directory parent:\"%s\" name:\"%s\" fullPath:\"%s\"\n", parentDir, fileName, meta_cache[metaCacheHead].sortedPath);
 	
 	metaCacheHead = (metaCacheHead + 1);	
 	if(metaCacheHead == MAX_META_ENTRIES)
@@ -46,7 +46,7 @@ int isDir(const char* sortedPath)
 		//printf("COMPARE DIR  %s %s\n",meta_cache[i].sortedPath,sortedPath);
 		if(strcmp(meta_cache[i].sortedPath, sortedPath) == 0)
 		{
-			printf("%s dir # %d\n", sortedPath, meta_cache[i].isDir);
+			//printf("%s dir # %d\n", sortedPath, meta_cache[i].isDir);
 			return meta_cache[i].isDir;
 		}
 	}
@@ -108,24 +108,24 @@ void getMetadataTree(void)
 			{				
 				sscanf(lineBuffer, " \"filename\": \"%[^\n\"]", formattedLine);
 				strncpy(meta_cache[metaCacheHead].cacheName, formattedLine, MAX_PATH_LENGTH);
-				printf("GOT A FILENAME %s\n", formattedLine);
+				//printf("GOT A FILENAME %s\n", formattedLine);
 			}
 			else if(strcmp(formattedLine, "filesize") == 0)
 			{
 				sscanf(lineBuffer, " \"filesize\": %[^\n,]", formattedLine);
 				meta_cache[metaCacheHead].fileSize = atoi(formattedLine);
-				printf("GOT A FILESIZE %s\n", formattedLine);
+				//printf("GOT A FILESIZE %s\n", formattedLine);
 			}
 			else if(strcmp(formattedLine, "title") == 0)
 			{
 				sscanf(lineBuffer, " \"title\": \"%[^\n\"]", formattedLine);
 				strncpy(meta_cache[metaCacheHead].fileName, formattedLine, MAX_PATH_LENGTH);
-				printf("GOT A TITLE %s\n", formattedLine);
+				//printf("GOT A TITLE %s\n", formattedLine);
 			}
 			else if(strcmp(formattedLine, "track") == 0)
 			{
 				sscanf(lineBuffer, " \"track\": %[^\n,]", formattedLine);
-				printf("GOT A TRACK %s\n", formattedLine);								
+				//printf("GOT A TRACK %s\n", formattedLine);								
 				strncpy(newPath, formattedLine, MAX_FILENAME_LENGTH);
 				strncat(newPath, " - ", MAX_FILENAME_LENGTH - strlen(newPath));
 				strncat(newPath, meta_cache[metaCacheHead].fileName, MAX_FILENAME_LENGTH - strlen(newPath));
@@ -164,7 +164,7 @@ void getMetadataTree(void)
 			{
 				care = 1;
 				directoryLevel--;
-				printf("ENDED DIRECTORY ]\n");
+				//printf("ENDED DIRECTORY ]\n");
 			}
 			if(strpbrk(lineBuffer, "}") != NULL)
 			{
@@ -172,7 +172,7 @@ void getMetadataTree(void)
 				{
 					care = 0;
 					directoryLevel--;
-					printf("ENDED DIRECTORY }\n");
+					//printf("ENDED DIRECTORY }\n");
 				}
 			}
 		}	
@@ -223,13 +223,13 @@ static void getFileInCache(char* fileName)
 	getCacheIndex(fileName, index);
 	if(strcmp(index, "-1") == 0)
 	{
-		printf("Getting file in cache %s\n", fileName);
+		//printf("Getting file in cache %s\n", fileName);
 		strncpy(command, "curl http://localhost:9880/get_file/", 256);
 		strncat(command, fileName, 256 - strlen(command));
 		strncat(command, " -o ~/.cache/ytl_cacheFile", 256 - strlen(command));
 		sprintf(index, "%d", fileCacheHead);
 		strncat(command, index, 256 - strlen(command));	
-		printf("command %s\n", command);
+		//printf("command %s\n", command);
 	
 		FILE *fp;
 		fp = popen(command, "r");
@@ -242,7 +242,7 @@ static void getFileInCache(char* fileName)
 
 		strncpy(file_cache[fileCacheHead], fileName, MAX_FILENAME_LENGTH);
 		fileCacheHead = (fileCacheHead + 1)	% MAX_FILES_CACHED;
-		printf("Finished loading %s to %s\n",fileName, index);
+		//printf("Finished loading %s to %s\n",fileName, index);
 	}
 }
 
@@ -262,7 +262,7 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 	//If it isn't found is bug
 	if(i == MAX_META_ENTRIES)
 	{
-		printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
+		//printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
 		cachePathBuf[0] = 0;
 		return;
 	}	
@@ -277,7 +277,7 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 	strncat(cachePathBuf, SERVER_ROOT, MAX_PATH_LENGTH - strlen(cachePathBuf));
 	getCacheIndex(meta_cache[i].cacheName, strIndex);
 	strncat(cachePathBuf, strIndex, MAX_PATH_LENGTH - strlen(cachePathBuf));
-	printf("For %s got cache path %s\n", sortedPath, cachePathBuf);
+	//printf("For %s got cache path %s\n", sortedPath, cachePathBuf);
 }
 
 

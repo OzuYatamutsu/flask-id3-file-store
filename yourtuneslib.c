@@ -46,11 +46,11 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 	//printf("\n\nGET ATTR %s\n\n", path);
 	memset(stbuf, 0, sizeof(struct stat));
 	int type = isDir(path);	
-	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 || strcmp(path, "/decades") == 0 || strcmp(path, "/all") == 0 || type == 1) 
+	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 || strcmp(path, "/decades") == 0 || type == 1) 
 	{
 		stbuf->st_mode = S_IFDIR | 0755;	
 	} 
-	else if (strcmp(path, "/all/Song_Name.mp3") == 0 || type == 0) 
+	else if (type == 0) 
 	{
 		stbuf->st_mode = S_IFREG | 0777;
 		stbuf->st_nlink = 1;
@@ -81,16 +81,6 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		filler(buf, "decades", NULL, 0);
 		filler(buf, "all", NULL, 0);
 	}
-	//Need to get info from cache
-	//get every entry where parentDir = /All 
-	else if(strcmp(path, "/all") == 0) 
-	{
-		filler(buf, ".", NULL, 0);
-		filler(buf, "..", NULL, 0);
-		filler(buf, "Song_Name.mp3", NULL, 0);		
-	}
-	//Get info from cache about existing years
-	//every parentDir = /Decades
 	else 
 	{
 		filler(buf, ".", NULL, 0);

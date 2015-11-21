@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include "cache_manager.h"
 
-#define SERVER_ROOT "/mnt/yourtuneslib/"
+#define SERVER_ROOT "/.cache/ytl_cacheFile"
 #define GET_META_COMMAND "curl -H \"Accept: application/json\" -H \"Content-Type: application/json\" http://localhost:9880/ls > ~/.cache/ytl_rawmeta.txt"
 
 static meta_cache_entry meta_cache[MAX_META_ENTRIES];
@@ -19,7 +19,10 @@ static void addMetaDirectory(char* parentDir, char* fileName)
 	strncpy(meta_cache[metaCacheHead].parentDir, parentDir, MAX_PATH_LENGTH);
 	strncpy(meta_cache[metaCacheHead].fileName, fileName, MAX_FILENAME_LENGTH);	
 	strncpy(meta_cache[metaCacheHead].sortedPath, parentDir, MAX_PATH_LENGTH);
-	strncat(meta_cache[metaCacheHead].sortedPath, "/", MAX_PATH_LENGTH - strlen(meta_cache[metaCacheHead].sortedPath));
+	if(strcmp(parentDir, "/") != 0)
+	{
+		strncat(meta_cache[metaCacheHead].sortedPath, "/", MAX_PATH_LENGTH - strlen(meta_cache[metaCacheHead].sortedPath));
+	}
 	strncat(meta_cache[metaCacheHead].sortedPath, meta_cache[metaCacheHead].fileName, MAX_PATH_LENGTH - strlen(meta_cache[metaCacheHead].sortedPath));
 	meta_cache[metaCacheHead].cacheName[0] = 0;
 	meta_cache[metaCacheHead].fileSize = 0;
@@ -40,7 +43,7 @@ int isDir(const char* sortedPath)
 	
 	for(i = 0; i < MAX_META_ENTRIES && i < metaCacheHead; i++)
 	{
-		printf("COMPARE DIR  %s %s\n",meta_cache[i].sortedPath,sortedPath);
+		//printf("COMPARE DIR  %s %s\n",meta_cache[i].sortedPath,sortedPath);
 		if(strcmp(meta_cache[i].sortedPath, sortedPath) == 0)
 		{
 			printf("%s dir # %d\n", sortedPath, meta_cache[i].isDir);
@@ -185,7 +188,7 @@ char* getDirName(const char* rootDir)
 {
 	for(;dirOffset < MAX_META_ENTRIES && dirOffset >= 0 && dirOffset < metaCacheHead; dirOffset++)
 	{
-		printf("Comparing %s to %s at offset %d\n", meta_cache[dirOffset].parentDir, rootDir, dirOffset);
+		//printf("Comparing %s to %s at offset %d\n", meta_cache[dirOffset].parentDir, rootDir, dirOffset);
 		if(strcmp(meta_cache[dirOffset].parentDir, rootDir) == 0)
 		{
 			dirOffset++;
@@ -196,17 +199,58 @@ char* getDirName(const char* rootDir)
 	return NULL;
 }
 
-//Read file into disk from server
-static void getFileInCache(const char* sortedpath)
+static void getCacheIndex(char* fileName, char* buf)
 {
-	//GET to /get_file/filename
-	sortedpath = sortedpath + 1;
+	int i;
+	
+	for(i = 0; i < MAX_FILES_CACHED; i++)
+	{
+		if(strcmp(file_cache[i], fileName) == 0)
+		{			
+			sprintf(buf, "%d", i);
+			return;
+		}
+	}
+	sprintf(buf, "%d", -1);
+	return;
+}
+
+//Read file into disk from server
+static void getFileInCache(char* fileName)
+{
+	char command[256];
+	char index[16];
+	getCacheIndex(fileName, index);
+	if(strcmp(index, "-1") == 0)
+	{
+		printf("Getting file in cache %s\n", fileName);
+		strncpy(command, "curl http://localhost:9880/get_file/", 256);
+		strncat(command, fileName, 256 - strlen(command));
+		strncat(command, " -o ~/.cache/ytl_cacheFile", 256 - strlen(command));
+		sprintf(index, "%d", fileCacheHead);
+		strncat(command, index, 256 - strlen(command));	
+		printf("command %s\n", command);
+	
+		FILE *fp;
+		fp = popen(command, "r");
+		if(fp == NULL) 
+		{
+			printf("pipe error\n");
+			return;
+		}	
+		pclose(fp);  
+
+		strncpy(file_cache[fileCacheHead], fileName, MAX_FILENAME_LENGTH);
+		fileCacheHead = (fileCacheHead + 1)	% MAX_FILES_CACHED;
+		printf("Finished loading %s to %s\n",fileName, index);
+	}
 }
 
 //Give path to cached file
 void getCachePath(char* cachePathBuf, const char* sortedPath)
 {
 	int i;
+	char strIndex[16];
 
 	for(i = 0; i < MAX_META_ENTRIES; i++)
 	{
@@ -222,11 +266,18 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 		cachePathBuf[0] = 0;
 		return;
 	}	
+	if(meta_cache[i].isDir == 1)
+	{
+		return;
+	}
 	//get the file from server since we probably going to use in near future
-	getFileInCache(sortedPath);
+	getFileInCache(meta_cache[i].cacheName);
 	//all files are located in same directory, just append filename to root path
-	strncpy(cachePathBuf, SERVER_ROOT, MAX_PATH_LENGTH);
-	strncat(cachePathBuf, meta_cache[i].fileName, MAX_PATH_LENGTH - strlen(cachePathBuf));
+	strncpy(cachePathBuf, getenv("HOME"), MAX_PATH_LENGTH);
+	strncat(cachePathBuf, SERVER_ROOT, MAX_PATH_LENGTH - strlen(cachePathBuf));
+	getCacheIndex(meta_cache[i].cacheName, strIndex);
+	strncat(cachePathBuf, strIndex, MAX_PATH_LENGTH - strlen(cachePathBuf));
+	printf("For %s got cache path %s\n", sortedPath, cachePathBuf);
 }
 
 
@@ -235,19 +286,6 @@ void initCache(void)
 {
 	memset(meta_cache, 0, sizeof(meta_cache_entry) * MAX_META_ENTRIES);
 	memset(file_cache, 0, MAX_FILES_CACHED * MAX_FILENAME_LENGTH);
-	//Temp
-	/*
-	strncpy(meta_cache[0].sortedPath, "/All/Song_Name.mp3", MAX_PATH_LENGTH);
-	strncpy(meta_cache[0].parentDir, "/All", MAX_PATH_LENGTH);
-	strncpy(meta_cache[0].fileName, "TheSearch.mp3", MAX_FILENAME_LENGTH);	
-	meta_cache[0].fileSize = 11923920;
-	meta_cache[0].owner = getuid();		
-	meta_cache[0].isDir = 0;
-	meta_cache[0].isShared = 0;
-	metaCacheHead = 1;
-	*/
-	strncpy(file_cache[0], "TheSearch.mp3", MAX_FILENAME_LENGTH);
-	fileCacheHead = 1;
 	getMetadataTree();	
 }
 

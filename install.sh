@@ -11,7 +11,7 @@ DEF_ROOT_PASS=team14
 dpkg -s mysql-server > /dev/null
 
 # MySQL is not installed
-if [ $? -neq 0 ]; then 
+if [ $? != "0" ]; then
     echo "MySQL server is not installed. Setting up with default password."
 
     # Root credentials for MySQL init

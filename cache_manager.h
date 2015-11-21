@@ -12,6 +12,7 @@
 		char sortedPath[MAX_PATH_LENGTH];
 		char parentDir[MAX_PATH_LENGTH];
 		char fileName[MAX_FILENAME_LENGTH];
+		char cacheName[MAX_FILENAME_LENGTH];
 		uid_t owner;		
 		int isDir;
 		int isShared;		
@@ -20,7 +21,7 @@
 	
 	//Extern Methods
 	void getCachePath(char* cachePathBuf, const char* sortedpath);
-	char* getDirName(char* rootDir);
+	char* getDirName(const char* rootDir);
 	int isDir(const char* sortedPath);
 	void initCache(void);
 

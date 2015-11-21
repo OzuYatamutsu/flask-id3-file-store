@@ -171,33 +171,19 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	}
 	//Get info from cache about existing years
 	//every parentDir = /Decades
-	else if(strcmp(path, "/decades") == 0) 
+	else 
 	{
 		filler(buf, ".", NULL, 0);
 		filler(buf, "..", NULL, 0);
-		char* dirName = getDirName("/decades");
+		char* dirName = getDirName(path);
 		while(dirName != NULL)
 		{
 			filler(buf, dirName, NULL, 0);
 			printf("fill dir %s\n", dirName);
-			dirName = getDirName("/decades");
+			dirName = getDirName(path);
 		}
 	}
-	//get info from cache about existing album directories
-	//every parentDir = /Albums
-	else if(strcmp(path, "/albums") == 0)
-	{
-		filler(buf, ".", NULL, 0);
-		filler(buf, "..", NULL, 0);
-		char* dirName = getDirName("/albums");
-		while(dirName != NULL)
-		{
-			filler(buf, dirName, NULL, 0);
-			printf("fill dir %s\n", dirName);
-			dirName = getDirName("/albums");
-		}
-	}
-	
+		
 	return 0;
 }
 

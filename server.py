@@ -82,6 +82,15 @@ def get_file(filename):
 
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
+@app.route("/web")
+def web():
+    """Provides the web interface."""
+    json_ls = "<script>\nvar json_ls = " + ls().get_data().decode("utf-8") + "\n</script>\n\n"
+    f = open('web.html', 'r')
+    html_content = f.read()
+    f.close()
+    return json_ls + html_content
+
 def db_connect():
     """Attempts to connect to the configured database.
     Returns a db and a cursor object."""    

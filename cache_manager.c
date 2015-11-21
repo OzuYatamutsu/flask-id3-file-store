@@ -218,7 +218,7 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 	//If it isn't found is bug
 	if(i == MAX_META_ENTRIES)
 	{
-		printf("Meta Cache Problem\n");
+		printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
 		cachePathBuf[0] = 0;
 		return;
 	}	

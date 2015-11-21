@@ -41,86 +41,6 @@ static void ytl_realPath(char pathBuffer[], const char *path)
 	printf("REALPATH %s\n", realPath);
 }
 
-static void extractInfo(FILE* fp, char* lineBuffer, char* destination)
-{
-	int needSpace = 0;
-	while(fscanf(fp, "%s", lineBuffer) == 1)
-	{			
-		if(strpbrk(lineBuffer, ":") == NULL) 
-		{
-			if(needSpace)
-				strncat(destination, " ", MAX_INFO_LENGTH - strlen(destination));
-			strncat(destination, lineBuffer, MAX_INFO_LENGTH - strlen(destination));
-		}
-		else
-		   return;//linebuffer ready to check without another scan				 
-		needSpace = 1;
-	}
-}
-
-static void getFileInfo(const char* realPath)
-{
-	//make it check to make sure mp3
-	printf("***getting file info for %s***\n", realPath);
-	FILE *fp;
-	char lineBuffer[1024];
-	char command[MAX_COMMAND_LENGTH];
-	snprintf(command, MAX_COMMAND_LENGTH, "mp3info \"%s\"\n", realPath);
-	
-	fp = popen(command, "r");
-	if(fp == NULL) 
-	{
-		printf("pipe error\n");
-		//couldn't run pipe
-		//think best way to handle this
-	}
-	
-	while(!feof(fp))
-	{		
-		if(fscanf(fp, "%s", lineBuffer) != 1)
-			break;		
-		//0 is equal
-		if(strcmp(lineBuffer, "Title:") == 0)
-		{
-			currentSongInfo.title[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.title);			
-		}
-		if(strcmp(lineBuffer, "Track:") == 0)
-		{
-			currentSongInfo.track[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.track);
-		}
-		if(strcmp(lineBuffer, "Artist:") == 0)
-		{
-			currentSongInfo.artist[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.artist);
-		}
-		if(strcmp(lineBuffer, "Album:") == 0)
-		{
-			currentSongInfo.album[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.album);
-		}
-		if(strcmp(lineBuffer, "Year:") == 0)
-		{
-			currentSongInfo.year[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.year);
-		}
-		if(strcmp(lineBuffer, "Comment:") == 0)
-		{
-			currentSongInfo.comment[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.comment);
-		}
-		if(strcmp(lineBuffer, "Genre:") == 0)
-		{
-			currentSongInfo.genre[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.genre);
-		}
-	}
-	printf("ALLINFO: %s %s %s %s %s %s %s \n", currentSongInfo.title, currentSongInfo.track, currentSongInfo.artist,
-		currentSongInfo.album, currentSongInfo.year, currentSongInfo.comment, currentSongInfo.genre);
-	pclose(fp);  
-}
-
 static int ytl_getattr(const char *path, struct stat *stbuf)
 {
 	printf("\n\nGET ATTR %s\n\n", path);
@@ -244,9 +164,7 @@ static int ytl_open(const char *path, struct fuse_file_info *fi)
 	//get path from cache
 	ytl_realPath(realPath, path);
 	
-	//Testing function
-	getFileInfo(realPath);	
-	
+	printf("OPENING REAL PATH %s\n", realPath);
 	res = open(realPath, fi->flags);
 	if (res == -1)
 	{

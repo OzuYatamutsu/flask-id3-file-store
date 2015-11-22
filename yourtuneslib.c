@@ -31,9 +31,9 @@ typedef struct songInfo {
 
 char realPath[MAX_PATH_LENGTH];
 char newRealPath[MAX_PATH_LENGTH];
-songInfo currentSongInfo;
-
-
+char tmpPath[MAX_PATH_LENGTH];
+char tmpAttrPath[MAX_PATH_LENGTH];
+int writeTmp;
 
 static void ytl_realPath(char pathBuffer[], const char *path)
 {  
@@ -43,7 +43,13 @@ static void ytl_realPath(char pathBuffer[], const char *path)
 
 static int ytl_getattr(const char *path, struct stat *stbuf)
 {
-	//printf("\n\nGET ATTR %s\n\n", path);
+	if(writeTmp == 1)
+	{
+		writeTmp = 0;
+		//upload file
+		getMetadataTree();
+	}
+	printf("getAttr path %s | tmpPath %s\n", path, tmpAttrPath);
 	memset(stbuf, 0, sizeof(struct stat));
 	int type = isDir(path);	
 	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 || strcmp(path, "/decades") == 0 || type == 1) 
@@ -56,6 +62,12 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 		stbuf->st_nlink = 1;
 		stbuf->st_size = 11923920;   
 	} 
+	else if(strcmp(path, tmpAttrPath) == 0)
+	{
+		stbuf->st_mode = S_IFREG | 0777;
+		stbuf->st_nlink = 1;
+		stbuf->st_size = 0; 
+	}
 	else
 	{
 		return -ENOENT;
@@ -99,62 +111,69 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 static int ytl_mknod(const char *path, mode_t mode, dev_t rdev)
 {
-	/*
 	int res;
-
-	ytl_realPath(realPath, path);
-	res = mknod(realPath, mode, rdev);
-	if (res == -1)
-		return -errno;
-	*/
-	//want to make new file/dir
+	if(strcmp(path, tmpAttrPath) != 0)
+	{
+		char* index;
+		index = strchr(path, '/');
+		index = strchr(index+1, '/');
+		if(index != NULL || (mode & S_IFREG) == 0)
+		{
+			printf("FAIL MKNOD %s\n", path);
+			return -1;
+		}
+		strcpy(tmpAttrPath, path);
+		strcpy(tmpPath, getenv("HOME"));
+		strcat(tmpPath, "/.cache");
+		strcat(tmpPath, path);
+		printf("TmpPath %s | tmpAttrPath %s\n", tmpPath, tmpAttrPath);
+		res = mknod(tmpPath, mode, rdev);
+		if (res == -1)
+			return -errno;
+	}
 	return 0;
 }
 
 static int ytl_chmod(const char *path, mode_t mode)
 {
+/*
 	int res;
 	ytl_realPath(realPath, path);
 
 	res = chmod(realPath, mode);
 	if (res == -1)
 		return -errno;
-
+*/
 	return 0;
 }
 
 static int ytl_chown(const char *path, uid_t uid, gid_t gid)
-{
+{/*
 	int res;
 
 	ytl_realPath(realPath, path);
 	res = lchown(realPath, uid, gid);
 	if (res == -1)
 		return -errno;
-
+*/
 	return 0;
 }
 
-static int ytl_truncate(const char *path, off_t size)
-{
-	int res;
-
-	ytl_realPath(realPath, path);
-	res = truncate(realPath, size);
-	if (res == -1)
-		return -errno;
-
-	return 0;
-}
 
 static int ytl_open(const char *path, struct fuse_file_info *fi)
 {
 	int res;
-
-	//get path from cache
-	ytl_realPath(realPath, path);
+	if(strcmp(path, tmpAttrPath) == 0)
+	{
+		strcpy(realPath, tmpPath);
+	}
+	else
+	{
+		//get path from cache
+		ytl_realPath(realPath, path);
+	}
 	
-	//printf("OPENING REAL PATH %s\n", realPath);
+	printf("OPENING REAL PATH %s\n", realPath);
 	res = open(realPath, fi->flags);
 	if (res == -1)
 	{
@@ -207,20 +226,21 @@ static int ytl_write(const char *path, const char *buf, size_t size,
 	int fd;
 	int res;
 
-	(void) fi;
+	if(strcmp(path, tmpAttrPath) == 0)
+	{	
+		writeTmp = 1;
+		fd = open(realPath, O_WRONLY);
+		if (fd == -1)
+			return -errno;
 
-	ytl_realPath(realPath, path);
+		res = pwrite(fd, buf, size, offset);
+		if (res == -1)
+			res = -errno;
 
-	fd = open(realPath, O_WRONLY);
-	if (fd == -1)
-		return -errno;
-
-	res = pwrite(fd, buf, size, offset);
-	if (res == -1)
-		res = -errno;
-
-	close(fd);
-	return res;
+		close(fd);
+		return res;
+	}
+	return -1;	
 }
 
 static int ytl_statfs(const char *path, struct statvfs *stbuf)
@@ -243,7 +263,6 @@ static struct fuse_operations ytl_oper = {
 	.mknod		= ytl_mknod,	 
 	.chmod		= ytl_chmod,
 	.chown		= ytl_chown,
-	.truncate	= ytl_truncate,
 	.open		= ytl_open,
 	.read		= ytl_read,
 	.write		= ytl_write,
@@ -254,6 +273,7 @@ int main(int argc, char *argv[])
 {	
 	printf("STARTIN FUSE\n");
 	initCache();
+	writeTmp = 0;
 	umask(0);
 	return fuse_main(argc, argv, &ytl_oper, NULL);
 }

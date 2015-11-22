@@ -24,5 +24,7 @@
 	char* getDirName(const char* rootDir);
 	int isDir(const char* sortedPath);
 	void initCache(void);
+	void getMetadataTree(void);
+	void uploadFile(char* path);
 
 #endif

@@ -14,6 +14,11 @@ static char file_cache[MAX_FILES_CACHED][MAX_FILENAME_LENGTH];
 static int fileCacheHead = 0;
 static int dirOffset = 0;
 
+void uploadFile(char* path)
+{
+	printf("Uploading file %s\n", path);
+}
+
 static void addMetaDirectory(char* parentDir, char* fileName)
 {
 	strncpy(meta_cache[metaCacheHead].parentDir, parentDir, MAX_PATH_LENGTH);

@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from werkzeug import secure_filename
 from os import path, stat
 from json import load # Load config file
+from hashlib import sha1 # For hashing file data
 from stagger import read_tag # MP3 tag parsing
 from stagger.id3 import *
 from stagger.errors import NoTagError # Catch if no ID3 tags to read
@@ -32,6 +33,7 @@ def upload():
     file = request.files["file_data"]
     if file:
         filename = secure_filename(file.filename)
+        filename = hash_file(file) + file.filename[-4:] # e.g. file.mp3 -> (hash(file)).mp3
         file.save(path.join(app.config["UPLOAD_FOLDER"], filename))
         db_insert_file(filename, file)
         return "0"
@@ -91,6 +93,10 @@ def web():
     f.close()
     return json_ls + html_content
 
+def hash_file(file):
+    """Computes a SHA1 hash of a given file."""
+    return sha1(file.read()).hexdigest()
+    
 def db_connect():
     """Attempts to connect to the configured database.
     Returns a db and a cursor object."""    
@@ -115,7 +121,8 @@ def db_insert_file(filename, file):
     except NoTagError:
         # No ID3 tags whatsoever
         print("Inserting misc file: " + filename)
-        query = "INSERT INTO ytfs_meta (filename) VALUES '{0}');".format(filename)
+        query = "INSERT IGNORE INTO ytfs_meta (filename) VALUES ('{0}');".format(filename)
+        print(query) #debug
         cursor.execute(query)
         db.commit()
         return
@@ -129,7 +136,11 @@ def db_insert_file(filename, file):
     track_comment = id3_file.comment.replace("'", "\\'")
    
     print("Inserting: " + artist + " - " + title) 
-    query = "INSERT INTO ytfs_meta (filename, track, title, artist, album, year, genre, track_comment) VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format(filename, track, title, artist, album, year, genre, track_comment)
+    query = "INSERT IGNORE INTO ytfs_meta (filename, track, title, artist, album, year, genre, track_comment) " + \
+        "VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format( \
+        filename, track, title, artist, album, year, genre, track_comment
+    )
+    print(query) #debug
     cursor.execute(query)
     db.commit() # Save changes back to DB
     
@@ -156,5 +167,6 @@ if __name__ == "__main__":
     if db: print("Connected to database!")
     app.run(
         host = "0.0.0.0",
-        port = SERV_PORT
+        port = SERV_PORT,
+        debug = True
     )

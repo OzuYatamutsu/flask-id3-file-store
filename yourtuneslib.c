@@ -91,7 +91,6 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		filler(buf, "..", NULL, 0);
 		filler(buf, "albums", NULL, 0);
 		filler(buf, "decades", NULL, 0);
-		filler(buf, "all", NULL, 0);
 	}
 	else 
 	{

@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify, send_from_directory
-from werkzeug import secure_filename
 from os import path, stat
 from json import load # Load config file
 from hashlib import sha1 # For hashing file data
@@ -32,7 +31,6 @@ def upload():
     POST to /upload with a file_data field."""
     file = request.files["file_data"]
     if file:
-        filename = secure_filename(file.filename)
         filename = hash_file(file) + file.filename[-4:] # e.g. file.mp3 -> (hash(file)).mp3
         file.save(path.join(app.config["UPLOAD_FOLDER"], filename))
         db_insert_file(filename, file)
@@ -95,8 +93,10 @@ def web():
 
 def hash_file(file):
     """Computes a SHA1 hash of a given file."""
-    return sha1(file.read()).hexdigest()
-    
+    file_data = file.read()
+    file.seek(0) # Resets read pointer
+    return sha1(file_data).hexdigest()
+
 def db_connect():
     """Attempts to connect to the configured database.
     Returns a db and a cursor object."""    

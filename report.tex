@@ -2,6 +2,14 @@
 
 \usepackage{listings} % Code samples
 \usepackage{color} % Code markup styling
+\usepackage{forest} % Directory graphics pt. 1
+\usepackage{elocalloc} % Directory graphics pt. 2
+\usepackage{graphicx} % For figures
+\usepackage{wrapfig} % Wrapping text around figures
+\usepackage[margin=1.85in]{geometry} % Adjust page margins
+
+% Styling for directory graphics
+\definecolor{aliceblue}{rgb}{0.94, 0.97, 1.0}
 
 % Styling for code markup
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -36,7 +44,28 @@
 \author{Sean Collins, Tim Farley, Robert Hensey}
 
 \begin{document}
+	% To prevent figure from affecting next page's centering status
+	\newgeometry{left=1.85in, right=1.85in, top=1.85in}
 	\maketitle
+	\section{Introduction}
+	The \textbf{YourTunes File System} is a FUSE-based implementation of a filesystem tailored towards music files. It is built on top of a remote backend server, which stores file data and metadata on a database server with a RESTful web server frontend. The client is responsible for transparently querying the remote server for resident files and constructing a metadata-based abstraction based on the parsed server response.
+	
+	\subsection{Directory structure}
+	The directory structure on the local filesystem is based on audio metadata - specifically, the \texttt{Album}, \texttt{Title}, \texttt{Track}, and \texttt{Year} ID3 fields. 
+	
+	% Insert directory structure figure
+	\vspace{0.01\textheight}
+	
+	\begin{wrapfigure}{l}{0.5\textwidth}
+		\centering
+		\input{dir-diagram-1}
+	\end{wrapfigure}
+	
+	\noindent Each song is placed as a leaf in two separate directory trees: one based on albums directly, and one based on albums categorized by the decade that they were released in (parsed from the \texttt{Year} field). In the case of missing metadata, a song is placed in a "Unknown" folder for both cases (\texttt{/albums/Unknown/}\textit{file}, \texttt{/decades/Unknown/Unknown/}\textit{file}). \\ Files with no metadata are also put into these buckets. \\
+	
+	\noindent In both hierarchies, the file at the leaf is a pointer to the same data, and a user can access the same file through either one (directly through the album name, or through albums organized by year).
+	
+	\pagebreak \restoregeometry
 	
 	\section{Setup}
 	\section{Server}

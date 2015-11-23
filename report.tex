@@ -4,6 +4,7 @@
 \usepackage{color} % Code markup styling
 \usepackage{forest} % Directory graphics pt. 1
 \usepackage{elocalloc} % Directory graphics pt. 2
+\usepackage{dirtree} % Boring directory representation
 \usepackage{graphicx} % For figures
 \usepackage{wrapfig} % Wrapping text around figures
 \usepackage[margin=1.85in]{geometry} % Adjust page margins
@@ -63,9 +64,34 @@
 	
 	\noindent Each song is placed as a leaf in two separate directory trees: one based on albums directly, and one based on albums categorized by the decade that they were released in (parsed from the \texttt{Year} field). In the case of missing metadata, a song is placed in a "Unknown" folder for both cases (\texttt{/albums/Unknown/}\textit{file}, \texttt{/decades/Unknown/Unknown/}\textit{file}). \\ Files with no metadata are also put into these buckets. \\
 	
-	\noindent In both hierarchies, the file at the leaf is a pointer to the same data, and a user can access the same file through either one (directly through the album name, or through albums organized by year).
+	\noindent Given the same metadata, the file pointers through both directory hierarchies are pointers to the same file data. 
 	
 	\pagebreak \restoregeometry
+	
+	\subsection{Example}
+	Given a audio file with the following metadata: \\
+	
+	\begin{tabular}{| r | l |}
+		\hline
+		\textbf{Track} & TODO \\ \hline
+		\textbf{Title} & TODO \\ \hline
+		\textbf{Artist} & TODO \\ \hline
+		\textbf{Album} & TODO \\ \hline 
+		\textbf{Year} & TODO \\ \hline
+	\end{tabular} \\
+	
+	\noindent The filesystem will present the following abstraction: \\ 
+	
+	\dirtree{%
+		.1 /.
+		.2 albums/.
+		.3 TODO-album-name/.
+		.4 TODO-track-title.
+		.2 decades/.
+		.3 TODO-album-decade/.
+		.4 TODO-album-name/.
+		.5 TODO-track-title.
+	}
 	
 	\section{Setup}
 	\section{Server}

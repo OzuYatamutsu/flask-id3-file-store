@@ -4,7 +4,7 @@
 	#define MAX_PATH_LENGTH 256
 	#define MAX_FILENAME_LENGTH 256
 
-	#define MAX_META_ENTRIES 2048
+	#define MAX_META_ENTRIES 4096
 	#define MAX_FILES_CACHED 32
 	
 	
@@ -12,6 +12,7 @@
 		char sortedPath[MAX_PATH_LENGTH];
 		char parentDir[MAX_PATH_LENGTH];
 		char fileName[MAX_FILENAME_LENGTH];
+		char cacheName[MAX_FILENAME_LENGTH];
 		uid_t owner;		
 		int isDir;
 		int isShared;		
@@ -20,6 +21,10 @@
 	
 	//Extern Methods
 	void getCachePath(char* cachePathBuf, const char* sortedpath);
+	char* getDirName(const char* rootDir);
+	int isDir(const char* sortedPath);
 	void initCache(void);
+	void getMetadataTree(void);
+	void uploadFile(char* path);
 
 #endif

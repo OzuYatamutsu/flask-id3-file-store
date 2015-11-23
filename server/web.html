@@ -1,0 +1,210 @@
+<style>
+body {
+    background:#000000;
+}
+
+a {
+    outline: 0;
+
+    color:#599bb3;
+    font-family:Arial;
+    font-size:14px;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+a.file {
+    color:#ffffff;
+}
+
+li {
+    padding: 0px;
+    list-style:none;
+
+    color:#aaaaaa;
+    font-family:Arial;
+    font-size:14px;
+    font-weight:bold;
+    text-decoration:none;
+}
+
+li.info {
+    padding: 0px;
+}
+
+ul {
+    padding-left: 20px;
+}
+
+.linkbtn {
+    margin-left: 20px;
+    moz-box-shadow: 0px 10px 14px -7px #276873;
+    webkit-box-shadow: 0px 10px 14px -7px #276873;
+    box-shadow: 0px 10px 14px -7px #276873;
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #599bb3), color-stop(1, #408c99));
+    background:-moz-linear-gradient(top, #599bb3 5%, #408c99 100%);
+    background:-webkit-linear-gradient(top, #599bb3 5%, #408c99 100%);
+    background:-o-linear-gradient(top, #599bb3 5%, #408c99 100%);
+    background:-ms-linear-gradient(top, #599bb3 5%, #408c99 100%);
+    background:linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#599bb3', endColorstr='#408c99',GradientType=0);
+    background-color:#599bb3;
+    moz-border-radius:8px;
+    webkit-border-radius:8px;
+    border-radius:8px;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:14px;
+    font-weight:bold;
+    padding:2px 16px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #3d768a;
+}
+.linkbtn:hover {
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #408c99), color-stop(1, #599bb3));
+    background:-moz-linear-gradient(top, #408c99 5%, #599bb3 100%);
+    background:-webkit-linear-gradient(top, #408c99 5%, #599bb3 100%);
+    background:-o-linear-gradient(top, #408c99 5%, #599bb3 100%);
+    background:-ms-linear-gradient(top, #408c99 5%, #599bb3 100%);
+    background:linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#408c99', endColorstr='#599bb3',GradientType=0);
+    background-color:#408c99;
+}
+.linkbtn:active {
+    position:relative;
+    top:1px;
+}
+</style>
+
+<body>
+<a href="#" onclick="LoadFakeData()">[Press to load fake data]</a>
+<script>
+function LoadFakeData() {
+json_ls = {
+  "albums": {
+    "The Black and White Album": [
+      {
+        "filename": "The_Hives_-_Hey_Little_World.mp3",
+        "filesize": 8116224,
+        "title": "Hey Little World",
+        "track": 5
+      },
+      {
+        "filename": "The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
+        "filesize": 6367232,
+        "title": "A Stroll Through Hive Manor Corridors",
+        "track": 6
+      }    
+    ],
+    "Tyrannosaurus Hives": [
+      {
+        "filename": "The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
+        "filesize": 2908160,
+        "title": "Two-Timing Touch And Broken Bones",
+        "track": 2
+      },
+      {
+        "filename": "The_Hives_-_Diabolic_Scheme.mp3",
+        "filesize": 4341839,
+        "title": "Diabolic Scheme",
+        "track": 8
+      }
+    ]
+  },
+  "decades": {
+    "2000": {
+      "The Black and White Album": [
+        {
+          "filename": "The_Hives_-_Hey_Little_World.mp3",
+          "filesize": 8116224,
+          "title": "Hey Little World",
+          "track": 5
+        },
+        {
+          "filename": "The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
+          "filesize": 6367232,
+          "title": "A Stroll Through Hive Manor Corridors",
+          "track": 6
+        } 
+      ],
+      "Tyrannosaurus Hives": [
+        {
+          "filename": "The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
+          "filesize": 2908160,
+          "title": "Two-Timing Touch And Broken Bones",
+          "track": 2
+        },
+        {
+          "filename": "The_Hives_-_Diabolic_Scheme.mp3",
+          "filesize": 4341839,
+          "title": "Diabolic Scheme",
+          "track": 8
+        }
+      ]
+    }
+  }
+}
+document.body.removeChild(document.body.children[2]);
+Treeify(document.body, json_ls);
+}
+
+function Treeify(parent, obj) {
+    if (typeof(obj) != "object" && typeof(obj) != "array") {
+        return;
+    }
+
+    var li, a, btn, sub_ul, ul = document.createElement ("ul");
+    for (var key in obj) {
+        li = document.createElement("li");
+        if (typeof(obj[key]) != "object" && typeof(obj[key]) != "array") {
+            if (key == "filename") {
+                parent.children[0].className = "file";
+                parent.children[0].text = obj[key];
+                btn = document.createElement("a");
+                btn.className = "linkbtn";
+                btn.text = "Download";
+                btn.href = "get_file/" + obj[key];
+                parent.appendChild(btn);
+                continue;
+            } else {
+                li.className = "info";
+                li.appendChild(document.createTextNode(key + " = " + obj[key]));
+            }
+        } else {
+            li.appendChild(document.createTextNode("+ "));
+            a = document.createElement("a");
+            a.text = key;
+            a.href = "#";
+            a.onclick = function() {
+                var i;
+                if (this.parentElement.children[1].tagName == "A") {
+                    i = 2;
+                } else {
+                    i = 1;
+                }
+                for (; i < this.parentElement.children.length; ++i) {
+                    if (this.parentElement.children[i].style.display != 'none') {
+                        this.parentElement.children[i].style.display = 'none';
+                        this.parentElement.childNodes[0].nodeValue = "+ ";
+                    } else {
+                        this.parentElement.children[i].style.display = '';
+                        this.parentElement.childNodes[0].nodeValue = "- ";
+                    }
+                }
+            }
+            li.appendChild(a);
+            sub_ul = Treeify(li, obj[key]);
+            sub_ul.style.display = 'none';
+        }
+        ul.appendChild(li);
+    }
+    parent.appendChild(ul);
+    return ul;
+}
+
+Treeify(document.body, json_ls);
+</script>
+</body>
+

@@ -11,12 +11,12 @@ DEF_ROOT_PASS=team14
 dpkg -s mysql-server > /dev/null
 
 # MySQL is not installed
-if [ $? -neq 0 ]; then 
+if [ $? != "0" ]; then
     echo "MySQL server is not installed. Setting up with default password."
 
     # Root credentials for MySQL init
-    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password password $DEF_ROOT_PASS'
-    sudo debconf-set-selections <<< 'mysql-server mysql-server/root_password_again password $DEF_ROOT_PASS'
+    sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password $DEF_ROOT_PASS"
+    sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $DEF_ROOT_PASS"
     sudo apt-get install mysql-server -y
 
     # Set up database

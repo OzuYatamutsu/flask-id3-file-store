@@ -4,11 +4,6 @@
 #include <config.h>
 #endif
 
-#ifdef linux
-/* For pread()/pwrite()/utimensat() */
-#define _XOPEN_SOURCE 700
-#endif
-
 #include <fuse.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,9 +14,6 @@
 #include <dirent.h>
 #include <errno.h>
 #include <sys/time.h>
-#ifdef HAVE_SETXATTR
-#include <sys/xattr.h>
-#endif
 #include "cache_manager.h"
 
 #define MAX_COMMAND_LENGTH 256
@@ -39,110 +31,43 @@ typedef struct songInfo {
 
 char realPath[MAX_PATH_LENGTH];
 char newRealPath[MAX_PATH_LENGTH];
-songInfo currentSongInfo;
-
-
+char tmpPath[MAX_PATH_LENGTH];
+char tmpAttrPath[MAX_PATH_LENGTH];
+int writeTmp;
 
 static void ytl_realPath(char pathBuffer[], const char *path)
 {  
 	getCachePath(pathBuffer, path);
-	printf("REALPATH %s\n", realPath);
-}
-
-static void extractInfo(FILE* fp, char* lineBuffer, char* destination)
-{
-	int needSpace = 0;
-	while(fscanf(fp, "%s", lineBuffer) == 1)
-	{			
-		if(strpbrk(lineBuffer, ":") == NULL) 
-		{
-			if(needSpace)
-				strncat(destination, " ", MAX_INFO_LENGTH - strlen(destination));
-			strncat(destination, lineBuffer, MAX_INFO_LENGTH - strlen(destination));
-		}
-		else
-		   return;//linebuffer ready to check without another scan				 
-		needSpace = 1;
-	}
-}
-
-static void getFileInfo(const char* realPath)
-{
-	//make it check to make sure mp3
-	printf("***getting file info for %s***\n", realPath);
-	FILE *fp;
-	char lineBuffer[1024];
-	char command[MAX_COMMAND_LENGTH];
-	snprintf(command, MAX_COMMAND_LENGTH, "mp3info \"%s\"\n", realPath);
-	
-	fp = popen(command, "r");
-	if(fp == NULL) 
-	{
-		printf("pipe error\n");
-		//couldn't run pipe
-		//think best way to handle this
-	}
-	
-	while(!feof(fp))
-	{		
-		if(fscanf(fp, "%s", lineBuffer) != 1)
-			break;		
-		//0 is equal
-		if(strcmp(lineBuffer, "Title:") == 0)
-		{
-			currentSongInfo.title[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.title);			
-		}
-		if(strcmp(lineBuffer, "Track:") == 0)
-		{
-			currentSongInfo.track[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.track);
-		}
-		if(strcmp(lineBuffer, "Artist:") == 0)
-		{
-			currentSongInfo.artist[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.artist);
-		}
-		if(strcmp(lineBuffer, "Album:") == 0)
-		{
-			currentSongInfo.album[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.album);
-		}
-		if(strcmp(lineBuffer, "Year:") == 0)
-		{
-			currentSongInfo.year[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.year);
-		}
-		if(strcmp(lineBuffer, "Comment:") == 0)
-		{
-			currentSongInfo.comment[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.comment);
-		}
-		if(strcmp(lineBuffer, "Genre:") == 0)
-		{
-			currentSongInfo.genre[0] = '\0';
-			extractInfo(fp, lineBuffer, currentSongInfo.genre);
-		}
-	}
-	printf("ALLINFO: %s %s %s %s %s %s %s \n", currentSongInfo.title, currentSongInfo.track, currentSongInfo.artist,
-		currentSongInfo.album, currentSongInfo.year, currentSongInfo.comment, currentSongInfo.genre);
-	pclose(fp);  
+	//printf("REALPATH %s\n", realPath);
 }
 
 static int ytl_getattr(const char *path, struct stat *stbuf)
 {
-	printf("\n\nGET ATTR %s\n\n", path);
+	if(writeTmp == 1)
+	{
+		writeTmp = 0;
+		uploadFile(tmpPath);
+		getMetadataTree();
+	}
+	printf("getAttr path %s | tmpPath %s\n", path, tmpAttrPath);
 	memset(stbuf, 0, sizeof(struct stat));
-	if(strcmp(path, "/") == 0 || strcmp(path, "/Albums") == 0 || strcmp(path, "/Decades") == 0 || strcmp(path, "/All") == 0) 
+	int type = isDir(path);	
+	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 || strcmp(path, "/decades") == 0 || type == 1) 
 	{
 		stbuf->st_mode = S_IFDIR | 0755;	
 	} 
-	else if (strcmp(path, "/All/Song_Name.mp3") == 0) 
+	else if (type == 0) 
 	{
 		stbuf->st_mode = S_IFREG | 0777;
 		stbuf->st_nlink = 1;
 		stbuf->st_size = 11923920;   
 	} 
+	else if(strcmp(path, tmpAttrPath) == 0)
+	{
+		stbuf->st_mode = S_IFREG | 0777;
+		stbuf->st_nlink = 1;
+		stbuf->st_size = 0; 
+	}
 	else
 	{
 		return -ENOENT;
@@ -164,94 +89,90 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 	{
 		filler(buf, ".", NULL, 0);
 		filler(buf, "..", NULL, 0);
-		filler(buf, "Albums", NULL, 0);
-		filler(buf, "Decades", NULL, 0);
-		filler(buf, "All", NULL, 0);
+		filler(buf, "albums", NULL, 0);
+		filler(buf, "decades", NULL, 0);
 	}
-	//Need to get info from cache
-	//get every entry where parentDir = /All 
-	else if(strcmp(path, "/All") == 0) 
+	else 
 	{
 		filler(buf, ".", NULL, 0);
 		filler(buf, "..", NULL, 0);
-		filler(buf, "Song_Name.mp3", NULL, 0);		
+		char* dirName = getDirName(path);
+		while(dirName != NULL)
+		{
+			filler(buf, dirName, NULL, 0);
+			printf("fill dir %s\n", dirName);
+			dirName = getDirName(path);
+		}
 	}
-	//Get info from cache about existing years
-	//every parentDir = /Decades
-	else if(strcmp(path, "/Decades") == 0) 
-	{
-	}
-	//get info from cache about existing album directories
-	//every parentDir = /Albums
-	else if(strcmp(path, "/Albums") == 0)
-	{
-	}
-	//Handle decades subdirectories
-	//Handle albums subdirectories
-	
+		
 	return 0;
 }
 
 static int ytl_mknod(const char *path, mode_t mode, dev_t rdev)
 {
-	/*
 	int res;
-
-	ytl_realPath(realPath, path);
-	res = mknod(realPath, mode, rdev);
-	if (res == -1)
-		return -errno;
-	*/
-	//want to make new file/dir
+	if(strcmp(path, tmpAttrPath) != 0)
+	{
+		char* index;
+		index = strchr(path, '/');
+		index = strchr(index+1, '/');
+		if(index != NULL || (mode & S_IFREG) == 0)
+		{
+			printf("FAIL MKNOD %s\n", path);
+			return -1;
+		}
+		strcpy(tmpAttrPath, path);
+		strcpy(tmpPath, getenv("HOME"));
+		strcat(tmpPath, "/.cache");
+		strcat(tmpPath, path);
+		printf("TmpPath %s | tmpAttrPath %s\n", tmpPath, tmpAttrPath);
+		res = mknod(tmpPath, mode, rdev);
+		if (res == -1)
+			return -errno;
+	}
 	return 0;
 }
 
 static int ytl_chmod(const char *path, mode_t mode)
 {
+/*
 	int res;
 	ytl_realPath(realPath, path);
 
 	res = chmod(realPath, mode);
 	if (res == -1)
 		return -errno;
-
+*/
 	return 0;
 }
 
 static int ytl_chown(const char *path, uid_t uid, gid_t gid)
-{
+{/*
 	int res;
 
 	ytl_realPath(realPath, path);
 	res = lchown(realPath, uid, gid);
 	if (res == -1)
 		return -errno;
-
+*/
 	return 0;
 }
 
-static int ytl_truncate(const char *path, off_t size)
-{
-	int res;
-
-	ytl_realPath(realPath, path);
-	res = truncate(realPath, size);
-	if (res == -1)
-		return -errno;
-
-	return 0;
-}
 
 static int ytl_open(const char *path, struct fuse_file_info *fi)
 {
 	int res;
-
-	//get path from cache
-	ytl_realPath(realPath, path);
+	if(strcmp(path, tmpAttrPath) == 0)
+	{
+		strcpy(realPath, tmpPath);
+	}
+	else
+	{
+		//get path from cache
+		ytl_realPath(realPath, path);
+	}
 	
-	//Testing function
-	getFileInfo(realPath);	
-	
+	printf("OPENING REAL PATH %s\n", realPath);
 	res = open(realPath, fi->flags);
 	if (res == -1)
 	{
@@ -261,7 +182,7 @@ static int ytl_open(const char *path, struct fuse_file_info *fi)
 	} 
 	else
 	{
-		printf("\n\nOPENED\n\n");
+		//printf("\n\nOPENED\n\n");
 	}
 
 	close(res);
@@ -275,7 +196,7 @@ static int ytl_read(const char *path, char *buf, size_t size, off_t offset,
 	int res;
 
 	(void) fi;
-	printf("\n\nREADING! %s\n\n", path);
+	//printf("\n\nREADING! %s\n\n", path);
 
 	ytl_realPath(realPath, path);
 
@@ -289,10 +210,10 @@ static int ytl_read(const char *path, char *buf, size_t size, off_t offset,
 	res = pread(fd, buf, size, offset);
 	if (res == -1) 
 	{
-		printf("READ ERR %d\n", -errno);
+		//printf("READ ERR %d\n", -errno);
 		res = -errno;
 	}
-	printf("READ OK %s %lx %lx\n", buf, (long)size, (long)offset);
+	//printf("READ OK %s %lx %lx\n", buf, (long)size, (long)offset);
 
 	close(fd);
 	return res;
@@ -304,20 +225,21 @@ static int ytl_write(const char *path, const char *buf, size_t size,
 	int fd;
 	int res;
 
-	(void) fi;
+	if(strcmp(path, tmpAttrPath) == 0)
+	{	
+		writeTmp = 1;
+		fd = open(realPath, O_WRONLY);
+		if (fd == -1)
+			return -errno;
 
-	ytl_realPath(realPath, path);
+		res = pwrite(fd, buf, size, offset);
+		if (res == -1)
+			res = -errno;
 
-	fd = open(realPath, O_WRONLY);
-	if (fd == -1)
-		return -errno;
-
-	res = pwrite(fd, buf, size, offset);
-	if (res == -1)
-		res = -errno;
-
-	close(fd);
-	return res;
+		close(fd);
+		return res;
+	}
+	return -1;	
 }
 
 static int ytl_statfs(const char *path, struct statvfs *stbuf)
@@ -340,7 +262,6 @@ static struct fuse_operations ytl_oper = {
 	.mknod		= ytl_mknod,	 
 	.chmod		= ytl_chmod,
 	.chown		= ytl_chown,
-	.truncate	= ytl_truncate,
 	.open		= ytl_open,
 	.read		= ytl_read,
 	.write		= ytl_write,
@@ -351,6 +272,7 @@ int main(int argc, char *argv[])
 {	
 	printf("STARTIN FUSE\n");
 	initCache();
+	writeTmp = 0;
 	umask(0);
 	return fuse_main(argc, argv, &ytl_oper, NULL);
 }

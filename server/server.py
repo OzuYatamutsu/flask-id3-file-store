@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
-from werkzeug import secure_filename
-from os import path
+from os import path, stat
 from json import load # Load config file
+from hashlib import sha1 # For hashing file data
 from stagger import read_tag # MP3 tag parsing
 from stagger.id3 import *
 from stagger.errors import NoTagError # Catch if no ID3 tags to read
@@ -31,11 +31,11 @@ def upload():
     POST to /upload with a file_data field."""
     file = request.files["file_data"]
     if file:
-        filename = secure_filename(file.filename)
+        filename = hash_file(file) + file.filename[-4:] # e.g. file.mp3 -> (hash(file)).mp3
         file.save(path.join(app.config["UPLOAD_FOLDER"], filename))
         db_insert_file(filename, file)
-        return "Got data! Filename=" + filename # Debug
-    return "Upload failure!"
+        return "0"
+    return "-1"
 
 @app.route("/ls")
 def ls():
@@ -45,13 +45,14 @@ def ls():
     cursor.execute(query)
     
     for (filename, track, title, artist, album, year) in cursor:
-        album = album if album != "" else "Misc."
+        album = album if album != "" else "Unknown"
         if album not in ls_dict["albums"]:
             ls_dict["albums"][album] = []
         ls_dict["albums"][album].append({
             "track": track, 
             "title": title, 
-            "path": request.url_root + path.join("get_file", filename)
+            "filename": filename,
+            "filesize": stat(path.join(app.config["UPLOAD_FOLDER"], filename)).st_size
         })
 
         decade = 0
@@ -60,7 +61,7 @@ def ls():
             decade = str(decade - (decade % 10))
         except ValueError:
             # Couldn't parse the year
-            decade = "Misc."
+            decade = "Unknown"
         
         if decade not in ls_dict["decades"]:
             ls_dict["decades"][decade] = {}
@@ -69,7 +70,8 @@ def ls():
         ls_dict["decades"][decade][album].append({
                 "track": track, 
                 "title": title, 
-                "path": request.url_root + path.join("get_file", filename)
+                "filename": filename,
+                "filesize": stat(path.join(app.config["UPLOAD_FOLDER"], filename)).st_size
         })
 
     return jsonify(**ls_dict)
@@ -79,6 +81,21 @@ def get_file(filename):
     """Retrieves a file."""
 
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+@app.route("/web")
+def web():
+    """Provides the web interface."""
+    json_ls = "<script>\nvar json_ls = " + ls().get_data().decode("utf-8") + "\n</script>\n\n"
+    f = open('web.html', 'r')
+    html_content = f.read()
+    f.close()
+    return json_ls + html_content
+
+def hash_file(file):
+    """Computes a SHA1 hash of a given file."""
+    file_data = file.read()
+    file.seek(0) # Resets read pointer
+    return sha1(file_data).hexdigest()
 
 def db_connect():
     """Attempts to connect to the configured database.
@@ -96,7 +113,6 @@ def db_connect():
 def db_insert_file(filename, file):
     """Reads file metadata and inserts it into the database."""
  
-    filename = filename.replace("'", "\\'") 
     id3_file = None
     
     try: 
@@ -104,7 +120,7 @@ def db_insert_file(filename, file):
     except NoTagError:
         # No ID3 tags whatsoever
         print("Inserting misc file: " + filename)
-        query = "INSERT INTO ytfs_meta (filename) VALUES '{0}');".format(filename)
+        query = "INSERT IGNORE INTO ytfs_meta (filename) VALUES ('{0}');".format(filename)
         cursor.execute(query)
         db.commit()
         return
@@ -118,8 +134,10 @@ def db_insert_file(filename, file):
     track_comment = id3_file.comment.replace("'", "\\'")
    
     print("Inserting: " + artist + " - " + title) 
-    query = "INSERT INTO ytfs_meta (filename, track, title, artist, album, year, genre, track_comment) VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format(filename, track, title, artist, album, year, genre, track_comment)
-    print(query) # Debug
+    query = "INSERT IGNORE INTO ytfs_meta (filename, track, title, artist, album, year, genre, track_comment) " + \
+        "VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format( \
+        filename, track, title, artist, album, year, genre, track_comment
+    )
     cursor.execute(query)
     db.commit() # Save changes back to DB
     

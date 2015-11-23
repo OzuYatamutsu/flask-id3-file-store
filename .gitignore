@@ -6,3 +6,5 @@ yourtuneslib
 *.aux
 *.log
 *.synctex.gz
+test.txt
+/server/data

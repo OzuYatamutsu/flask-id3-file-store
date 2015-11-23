@@ -16,7 +16,20 @@ static int dirOffset = 0;
 
 void uploadFile(char* path)
 {
+	char command[MAX_PATH_LENGTH];
+	FILE* fp;
 	printf("Uploading file %s\n", path);
+	strcpy(command,"curl --form file_data=@");
+	strncat(command, path, MAX_PATH_LENGTH - strlen(command));
+	strncat(command, "  localhost:9880/upload", MAX_PATH_LENGTH - strlen(command));
+	printf("Upload command %s\n", command);
+	fp = popen(command, "r");
+	if(fp == NULL) 
+	{
+		printf("pipe error\n");
+		return;
+	}	
+	pclose(fp);  	
 }
 
 static void addMetaDirectory(char* parentDir, char* fileName)

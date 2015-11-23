@@ -46,7 +46,7 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 	if(writeTmp == 1)
 	{
 		writeTmp = 0;
-		//upload file
+		uploadFile(tmpPath);
 		getMetadataTree();
 	}
 	printf("getAttr path %s | tmpPath %s\n", path, tmpAttrPath);

@@ -113,7 +113,6 @@ def db_connect():
 def db_insert_file(filename, file):
     """Reads file metadata and inserts it into the database."""
  
-    filename = filename.replace("'", "\\'") 
     id3_file = None
     
     try: 
@@ -122,7 +121,6 @@ def db_insert_file(filename, file):
         # No ID3 tags whatsoever
         print("Inserting misc file: " + filename)
         query = "INSERT IGNORE INTO ytfs_meta (filename) VALUES ('{0}');".format(filename)
-        print(query) #debug
         cursor.execute(query)
         db.commit()
         return
@@ -140,7 +138,6 @@ def db_insert_file(filename, file):
         "VALUES ('{0}', {1}, '{2}', '{3}', '{4}', '{5}', '{6}', '{7}');".format( \
         filename, track, title, artist, album, year, genre, track_comment
     )
-    print(query) #debug
     cursor.execute(query)
     db.commit() # Save changes back to DB
     
@@ -167,6 +164,5 @@ if __name__ == "__main__":
     if db: print("Connected to database!")
     app.run(
         host = "0.0.0.0",
-        port = SERV_PORT,
-        debug = True
+        port = SERV_PORT
     )

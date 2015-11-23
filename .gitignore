@@ -3,4 +3,6 @@
 yourtuneslib
 .deps
 .libs
-
+*.aux
+*.log
+*.synctex.gz

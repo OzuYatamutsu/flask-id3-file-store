@@ -43,15 +43,7 @@ static void ytl_realPath(char pathBuffer[], const char *path)
 }
 
 static int ytl_getattr(const char *path, struct stat *stbuf)
-{
-	if(writeTmp == 1)
-	{
-		writeTmp = 0;
-		uploadFile(tmpPath);
-		strcpy(tmpAttrPath, "");	
-		unlink(tmpPath);	
-		getMetadataTree();	
-	}
+{	
 	printf("getAttr path %s | tmpPath %s\n", path, tmpAttrPath);
 	memset(stbuf, 0, sizeof(struct stat));
 	int type = isDir(path);	
@@ -178,6 +170,14 @@ static int ytl_unlink(const char *path)
 
 int ytl_release(const char *path, struct fuse_file_info *fi)
 {
+	if(writeTmp == 1)
+	{
+		writeTmp = 0;
+		uploadFile(tmpPath);
+		strcpy(tmpAttrPath, "");	
+		unlink(tmpPath);	
+		getMetadataTree();	
+	}
 	return 0;
 }
 

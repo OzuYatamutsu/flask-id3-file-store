@@ -33,6 +33,7 @@ char realPath[MAX_PATH_LENGTH];
 char newRealPath[MAX_PATH_LENGTH];
 char tmpPath[MAX_PATH_LENGTH];
 char tmpAttrPath[MAX_PATH_LENGTH];
+char trashPath[MAX_PATH_LENGTH];
 int writeTmp;
 
 static void ytl_realPath(char pathBuffer[], const char *path)
@@ -52,7 +53,11 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 	printf("getAttr path %s | tmpPath %s\n", path, tmpAttrPath);
 	memset(stbuf, 0, sizeof(struct stat));
 	int type = isDir(path);	
-	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 || strcmp(path, "/decades") == 0 || type == 1) 
+	if(strcmp(path, "/") == 0 || strcmp(path, "/albums") == 0 
+							  || strcmp(path, "/decades") == 0 
+						      || strcmp(path, "/.Trash") == 0 
+							  || strcmp(path, trashPath) == 0 
+							  || type == 1) 
 	{
 		stbuf->st_mode = S_IFDIR | 0755;	
 	} 
@@ -161,31 +166,37 @@ static int ytl_chown(const char *path, uid_t uid, gid_t gid)
 
 static int ytl_open(const char *path, struct fuse_file_info *fi)
 {
-	int res;
-	if(strcmp(path, tmpAttrPath) == 0)
-	{
-		strcpy(realPath, tmpPath);
-	}
-	else
-	{
-		//get path from cache
-		ytl_realPath(realPath, path);
-	}
-	
-	printf("OPENING REAL PATH %s\n", realPath);
-	res = open(realPath, fi->flags);
-	if (res == -1)
-	{
-		printf("\n\nERORRRRRRRRR: %d\n\n", -errno);
-		//return -errno;
-		return 0;
-	} 
-	else
-	{
-		//printf("\n\nOPENED\n\n");
-	}
+	//Both read/write open file themselves
+	return 0;
+}
 
-	close(res);
+static int ytl_unlink(const char *path)
+{
+	printf("Trying to delete file %s\n", path);
+	return 0;
+}
+
+int ytl_release(const char *path, struct fuse_file_info *fi)
+{
+	return 0;
+}
+
+int ytl_utime(const char *path, struct utimbuf *ubuf)
+{	/*
+    int retstat = 0;
+    char fpath[PATH_MAX];
+    
+    log_msg("\nbb_utime(path=\"%s\", ubuf=0x%08x)\n",
+	    path, ubuf);
+    bb_fullpath(fpath, path);
+    
+    retstat = utime(fpath, ubuf);
+    if (retstat < 0)
+	retstat = bb_error("bb_utime utime");
+    
+    return retstat;
+	*/
+	printf("utime file %s\n", path);
 	return 0;
 }
 
@@ -266,6 +277,9 @@ static struct fuse_operations ytl_oper = {
 	.read		= ytl_read,
 	.write		= ytl_write,
 	.statfs		= ytl_statfs,
+	.unlink 	= ytl_unlink,
+	.utime		= ytl_utime,
+	.release 	= ytl_release
 };
 
 int main(int argc, char *argv[])
@@ -273,6 +287,10 @@ int main(int argc, char *argv[])
 	printf("STARTIN FUSE\n");
 	initCache();
 	writeTmp = 0;
+	strcpy(trashPath, "/.Trash-");
+	char uidString[16];
+	sprintf(uidString, "%d", getuid());
+	strcat(trashPath, uidString);
 	umask(0);
 	return fuse_main(argc, argv, &ytl_oper, NULL);
 }

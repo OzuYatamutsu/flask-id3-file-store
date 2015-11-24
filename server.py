@@ -85,8 +85,10 @@ def get_file(filename):
 @app.route("/delete_file/<path:filename>")
 def delete_file(filename):
     """Deletes a file."""
-    
-    return remove(path.join(app.config["UPLOAD_FOLDER"]), filename)
+   
+    remove(path.join(app.config["UPLOAD_FOLDER"], filename)) 
+    db_delete_file(filename)
+    return "Deleted {0}.".format(filename)
     
 @app.route("/web")
 def web():
@@ -147,6 +149,13 @@ def db_insert_file(filename, file):
     cursor.execute(query)
     db.commit() # Save changes back to DB
     
+def db_delete_file(filename):
+    """Deletes file metadata from the database."""
+
+    query = "DELETE FROM ytfs_meta WHERE filename = '{0}'".format(filename)
+    cursor.execute(query)
+    db.commit() # Save changes back to DB
+
 def load_config(
 ):
     global SERV_PORT, DATA_DIR, DB_HOST, DB_PORT, DB_USER, DB_PASSWD, DB_DB
@@ -170,5 +179,6 @@ if __name__ == "__main__":
     if db: print("Connected to database!")
     app.run(
         host = "0.0.0.0",
-        port = SERV_PORT
+        port = SERV_PORT,
+        debug = True
     )

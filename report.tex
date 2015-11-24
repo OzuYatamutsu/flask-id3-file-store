@@ -92,7 +92,17 @@
 		.4 Some Hearts/.
 		.5 4-Jesus, Take the Wheel.
 	}
+		
+	\section{Client}
+	% TODO
+	\subsection{Setup}
+	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{mp3info}, \texttt{curl}, \texttt{jq}. Assuming a Debian-based system, these can be installed by running \\ \texttt{./install-deps.sh} or running the following command manually:
 	
-	\section{Setup}
+\begin{lstlisting}[language=Bash]
+sudo apt-get install -y libfuse-dev pkg-config mp3info curl jq 
+\end{lstlisting}
+	
+	\noindent Once the dependencies are installed, run \texttt{make} from the project root to build the client. Finally, run \texttt{./yourtuneslib <mountpoint>} to mount the filesystem to a local directory, with \texttt{<mountpoint>} being the path to an existing directory.
+	
 	\section{Server}
 \end{document}

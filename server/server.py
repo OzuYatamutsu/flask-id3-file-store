@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory
-from os import path, stat
+from os import path, stat, remove
 from json import load # Load config file
 from hashlib import sha1 # For hashing file data
 from stagger import read_tag # MP3 tag parsing
@@ -82,6 +82,12 @@ def get_file(filename):
 
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
+@app.route("/delete_file/<path:filename>")
+def delete_file(filename):
+    """Deletes a file."""
+    
+    return remove(path.join(app.config["UPLOAD_FOLDER"]), filename)
+    
 @app.route("/web")
 def web():
     """Provides the web interface."""

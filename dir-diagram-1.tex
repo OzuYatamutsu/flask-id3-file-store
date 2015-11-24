@@ -1,0 +1,45 @@
+\vspace{-0.02\textheight}
+\begin{forest}
+for tree={
+	font=\sffamily,
+	text=black,
+	text width=2cm,
+	minimum height=0.75cm,
+	if level=0
+	{fill=green}
+	{fill=aliceblue},
+	rounded corners=4pt,
+	grow'=0,
+	child anchor=west,
+	parent anchor=south,
+	anchor=west,
+	calign=first,
+	edge={green,rounded corners,line width=1pt},
+	edge path={
+		\noexpand\path [draw, \forestoption{edge}]
+		(!u.south west) +(7.5pt,0) |- (.child anchor)\forestoption{edge label};
+	},
+	before typesetting nodes={
+		if n=1
+		{insert before={[,phantom]}}
+		{}
+	},
+	fit=band,
+	s sep=15pt,
+	before computing xy={l=15pt},
+}
+[\texttt{/}
+  [\texttt{/albums/}
+    [\textit{album}
+	    [\textit{song}]
+    ]
+  ]
+  [\texttt{/decades/}
+	[\textit{decade}
+	    [\textit{album}
+		    [\textit{song}]
+		]
+	]
+  ]
+]
+\end{forest}

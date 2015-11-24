@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, send_from_directory
-from os import path, stat
+from os import path, stat, remove
 from json import load # Load config file
 from hashlib import sha1 # For hashing file data
 from stagger import read_tag # MP3 tag parsing
@@ -59,8 +59,8 @@ def ls():
         try:
             decade = int(year)
             decade = str(decade - (decade % 10))
-        except ValueError:
-            # Couldn't parse the year
+        except (ValueError, TypeError):
+            # Couldn't parse the year (e.g. no metadata or strange date format)
             decade = "Unknown"
         
         if decade not in ls_dict["decades"]:
@@ -82,6 +82,19 @@ def get_file(filename):
 
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
+@app.route("/delete_file/<path:filename>")
+def delete_file(filename):
+    """Deletes a file."""
+   
+    try:
+        remove(path.join(app.config["UPLOAD_FOLDER"], filename)) 
+        db_delete_file(filename)
+    except FileNotFoundError:
+        return "{0} does not exist on server.".format(filename)
+    except:
+        return "Could not delete {0}.".format(filename)
+    return "Deleted {0}.".format(filename)
+    
 @app.route("/web")
 def web():
     """Provides the web interface."""
@@ -141,6 +154,13 @@ def db_insert_file(filename, file):
     cursor.execute(query)
     db.commit() # Save changes back to DB
     
+def db_delete_file(filename):
+    """Deletes file metadata from the database."""
+
+    query = "DELETE FROM ytfs_meta WHERE filename = '{0}'".format(filename)
+    cursor.execute(query)
+    db.commit() # Save changes back to DB
+
 def load_config(
 ):
     global SERV_PORT, DATA_DIR, DB_HOST, DB_PORT, DB_USER, DB_PASSWD, DB_DB

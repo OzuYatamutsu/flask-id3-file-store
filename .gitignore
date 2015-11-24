@@ -3,5 +3,8 @@
 yourtuneslib
 .deps
 .libs
+*.aux
+*.log
+*.synctex.gz
 test.txt
 /server/data

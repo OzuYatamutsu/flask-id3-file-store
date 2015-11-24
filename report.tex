@@ -1,0 +1,115 @@
+\documentclass{article}
+
+\usepackage{listings} % Code samples
+\usepackage{color} % Code markup styling
+\usepackage{forest} % Directory graphics pt. 1
+\usepackage{elocalloc} % Directory graphics pt. 2
+\usepackage{dirtree} % Boring directory representation
+\usepackage{graphicx} % For figures
+\usepackage{wrapfig} % Wrapping text around figures
+\usepackage[margin=1.85in]{geometry} % Adjust page margins
+
+% Styling for directory graphics
+\definecolor{aliceblue}{rgb}{0.94, 0.97, 1.0}
+
+% Styling for code markup
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{codestyle}{
+	backgroundcolor=\color{backcolour},   
+	commentstyle=\color{codegreen},
+	keywordstyle=\color{magenta},
+	numberstyle=\tiny\color{codegray},
+	stringstyle=\color{codepurple},
+	basicstyle=\footnotesize,
+	breakatwhitespace=false,         
+	breaklines=true,                 
+	captionpos=b,                    
+	keepspaces=true,                 
+	numbers=left,                    
+	numbersep=5pt,                  
+	showspaces=false,                
+	showstringspaces=false,
+	showtabs=false,                  
+	tabsize=2
+}
+
+\lstset{style=codestyle}
+% End code markup styling
+
+\title{YourTunes File System}
+\date{CS 3210}
+\author{Sean Collins, Tim Farley, Robert Hensey}
+
+\begin{document}
+	% To prevent figure from affecting next page's centering status
+	\newgeometry{left=1.85in, right=1.85in, top=1.85in}
+	\maketitle
+	\section{Introduction}
+	The \textbf{YourTunes File System} is a FUSE-based implementation of a filesystem tailored towards music files. It is built on top of a remote backend server, which stores file data and metadata on a database server with a RESTful web server frontend. The client is responsible for transparently querying the remote server for resident files and constructing a metadata-based abstraction based on the parsed server response.
+	
+	\subsection{Directory structure}
+	The directory structure on the local filesystem is based on audio metadata - specifically, the \texttt{Album}, \texttt{Title}, \texttt{Track}, and \texttt{Year} ID3 fields. 
+	
+	% Insert directory structure figure
+	\vspace{0.01\textheight}
+	
+	\begin{wrapfigure}{l}{0.5\textwidth}
+		\centering
+		\input{dir-diagram-1}
+	\end{wrapfigure}
+	
+	\noindent Each song is placed as a leaf in two separate directory trees: one based on albums directly, and one based on albums categorized by the decade that they were released in (parsed from the \texttt{Year} field). In the case of missing metadata, a song is placed in a "Unknown" folder for both cases (\texttt{/albums/Unknown/}\textit{file}, \texttt{/decades/Unknown/Unknown/}\textit{file}). \\ Files with no metadata are also put into these buckets. \\
+	
+	\noindent Given the same metadata, the file pointers through both directory hierarchies are pointers to the same file data. 
+	
+	\pagebreak \restoregeometry
+	
+	\subsection{Example}
+	Given an audio file with the following metadata: \\
+	
+	\begin{tabular}{| r | l |}
+		\hline
+		\textbf{Track} & 4 \\ \hline
+		\textbf{Title} & Jesus, Take the Wheel \\ \hline
+		\textbf{Artist} & Carrie Underwood \\ \hline
+		\textbf{Album} & \textit{Some Hearts} \\ \hline 
+		\textbf{Year} & 2005 \\ \hline
+	\end{tabular} \\
+	
+	\noindent The filesystem will present the following abstraction: \\ 
+	
+	\dirtree{%
+		.1 /.
+		.2 albums/.
+		.3 Some Hearts/.
+		.4 4-Jesus, Take the Wheel.
+		.2 decades/.
+		.3 2000s/.
+		.4 Some Hearts/.
+		.5 4-Jesus, Take the Wheel.
+	}
+		
+	\section{Client}
+	% TODO
+	
+	\subsection{Setup}
+	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{mp3info}, \texttt{curl}, \texttt{jq}. Assuming a Debian-based system, these can be installed by running \\ \texttt{./install-deps.sh} or running the following command manually:
+	
+\begin{lstlisting}[language=Bash]
+sudo apt-get install -y libfuse-dev pkg-config mp3info curl jq 
+\end{lstlisting}
+	
+	\noindent Once the dependencies are installed, run \texttt{make} from the project root to build the client. Finally, run \texttt{./yourtuneslib <mountpoint>} to mount the filesystem to a local directory, with \texttt{<mountpoint>} being the path to an existing directory.
+	
+	\section{Server}
+	% TODO
+	
+	\subsection{Setup}
+	Run \texttt{./install.sh} in the \texttt{server} directory. You will need sudo privileges as well as a root MySQL database password, and will be prompted for these when required. If MySQL is not installed, it will be installed for you, with the root password being set to \texttt{team14}. \\
+	
+	\noindent Once the script completes, start the server by running \texttt{python3 server.py}.
+\end{document}

@@ -45,3 +45,4 @@ done
 
 # Clean up when done
 make clean > /dev/null
+rm -Rfv $TEST_FOLDER

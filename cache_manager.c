@@ -131,7 +131,7 @@ void getMetadataTree(void)
 	char formattedLine[MAX_PATH_LENGTH];
 	char newPath[MAX_PATH_LENGTH];
 	int directoryLevel = 0;
-	int care = 0;
+	int care = 1;
 
 	//Fetch raw json from server
 	fp = popen(GET_META_COMMAND, "r");

@@ -100,3 +100,8 @@ Uploads a file to the file store. ID3 tags are parsed on the server and the meta
 **Parameters**: **`filename`** The name of the file (as provided by `/ls` above).
 
 Serves a raw file given by the filename through HTTP.
+
+## `GET` to `/delete_file/`_filename_
+**Parameters**: **`filename`** The name of the file (as provided by `/ls` above).
+
+Deletes a file given by the filename from the server.

@@ -42,13 +42,13 @@ ul {
     moz-box-shadow: 0px 10px 14px -7px #276873;
     webkit-box-shadow: 0px 10px 14px -7px #276873;
     box-shadow: 0px 10px 14px -7px #276873;
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #599bb3), color-stop(1, #408c99));
-    background:-moz-linear-gradient(top, #599bb3 5%, #408c99 100%);
-    background:-webkit-linear-gradient(top, #599bb3 5%, #408c99 100%);
-    background:-o-linear-gradient(top, #599bb3 5%, #408c99 100%);
-    background:-ms-linear-gradient(top, #599bb3 5%, #408c99 100%);
-    background:linear-gradient(to bottom, #599bb3 5%, #408c99 100%);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#599bb3', endColorstr='#408c99',GradientType=0);
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #599bb3), color-stop(1, #305c89));
+    background:-moz-linear-gradient(top, #599be3 5%, #305c89 100%);
+    background:-webkit-linear-gradient(top, #599bb3 5%, #305c89 100%);
+    background:-o-linear-gradient(top, #599bb3 5%, #305c89 100%);
+    background:-ms-linear-gradient(top, #599bb3 5%, #305c89 100%);
+    background:linear-gradient(to bottom, #599bb3 5%, #305c89 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#599bb3', endColorstr='#305c89',GradientType=0);
     background-color:#599bb3;
     moz-border-radius:8px;
     webkit-border-radius:8px;
@@ -64,16 +64,57 @@ ul {
     text-shadow:0px 1px 0px #3d768a;
 }
 .linkbtn:hover {
-    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #408c99), color-stop(1, #599bb3));
-    background:-moz-linear-gradient(top, #408c99 5%, #599bb3 100%);
-    background:-webkit-linear-gradient(top, #408c99 5%, #599bb3 100%);
-    background:-o-linear-gradient(top, #408c99 5%, #599bb3 100%);
-    background:-ms-linear-gradient(top, #408c99 5%, #599bb3 100%);
-    background:linear-gradient(to bottom, #408c99 5%, #599bb3 100%);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#408c99', endColorstr='#599bb3',GradientType=0);
-    background-color:#408c99;
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #305c89), color-stop(1, #599bb3));
+    background:-moz-linear-gradient(top, #305c89 5%, #599bb3 100%);
+    background:-webkit-linear-gradient(top, #305c89 5%, #599bb3 100%);
+    background:-o-linear-gradient(top, #305c89 5%, #599bb3 100%);
+    background:-ms-linear-gradient(top, #305c89 5%, #599bb3 100%);
+    background:linear-gradient(to bottom, #305c89 5%, #599bb3 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#305c89', endColorstr='#599bb3',GradientType=0);
+    background-color:#305c89;
 }
 .linkbtn:active {
+    position:relative;
+    top:1px;
+}
+
+.redlinkbtn {
+    margin-left: 20px;
+    moz-box-shadow: 0px 10px 14px -7px #8c2000;
+    webkit-box-shadow: 0px 10px 14px -7px #8c2000;
+    box-shadow: 0px 10px 14px -7px #8c2000;
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #b52000), color-stop(1, #5c2000));
+    background:-moz-linear-gradient(top, #b52000 5%, #5c2000 100%);
+    background:-webkit-linear-gradient(top, #b52000 5%, #5c2000 100%);
+    background:-o-linear-gradient(top, #b52000 5%, #5c2000 100%);
+    background:-ms-linear-gradient(top, #b52000 5%, #5c2000 100%);
+    background:linear-gradient(to bottom, #b52000 5%, #5c2000 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#b52000', endColorstr='#5c2000',GradientType=0);
+    background-color:#b52000;
+    moz-border-radius:8px;
+    webkit-border-radius:8px;
+    border-radius:8px;
+    display:inline-block;
+    cursor:pointer;
+    color:#ffffff;
+    font-family:Arial;
+    font-size:6vmin;
+    font-weight:bold;
+    padding:2px 16px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #3d768a;
+}
+.redlinkbtn:hover {
+    background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #8c2000), color-stop(1, #b52000));
+    background:-moz-linear-gradient(top, #8c2000 5%, #b52000 100%);
+    background:-webkit-linear-gradient(top, #8c2000 5%, #b52000 100%);
+    background:-o-linear-gradient(top, #8c2000 5%, #b52000 100%);
+    background:-ms-linear-gradient(top, #8c2000 5%, #b52000 100%);
+    background:linear-gradient(to bottom, #8c2000 5%, #b52000 100%);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#8c2000', endColorstr='#b52000',GradientType=0);
+    background-color:#8c2000;
+}
+.redlinkbtn:active {
     position:relative;
     top:1px;
 }
@@ -118,6 +159,7 @@ function Treeify(parent, obj) {
             if (key == "title") {
                 parent.children[0].className = "file";
                 parent.children[0].text = obj[key];
+                parent.children[2].targetname = obj[key];
                 continue;
             } else {
                 if (key == "filename") {
@@ -125,6 +167,20 @@ function Treeify(parent, obj) {
                     btn.className = "linkbtn";
                     btn.text = "Play";
                     btn.href = "get_file/" + obj[key];
+                    parent.appendChild(btn);
+
+                    btn = document.createElement("a");
+                    btn.className = "redlinkbtn";
+                    btn.text = "Delete";
+                    btn.target = obj[key];
+                    btn.onclick = function() {
+                        var confirmed = confirm("Are you sure you want to delete " + this.targetname + "?");
+                        if (confirmed == true) {
+                            xhr.open("get", "/delete_file/" + this.target, true);
+                            xhr.send();
+                            location.reload();
+                        }
+                    }
                     parent.appendChild(btn);
                 }
 
@@ -139,7 +195,7 @@ function Treeify(parent, obj) {
             a.onclick = function() {
                 var i;
                 if (this.parentElement.children[1].tagName == "A") {
-                    i = 2;
+                    i = 3;
                 } else {
                     i = 1;
                 }

@@ -107,7 +107,28 @@ sudo apt-get install -y libfuse-dev pkg-config mp3info curl jq
 	\noindent Once the dependencies are installed, run \texttt{make} from the project root to build the client. Finally, run \texttt{./yourtuneslib <mountpoint>} to mount the filesystem to a local directory, with \texttt{<mountpoint>} being the path to an existing directory.
 	
 	\section{Server}
-	% TODO
+	The backing server serves as the file and metadata store for the filesystem. It provides an interface to list, add, and remove files as well as query for metadata.
+	
+	\subsection{API}
+	\subsubsection{\texttt{GET /ls}}
+	\textbf{Parameters}: \textit{None.} \\
+	
+	\noindent Returns a recursive listing of all files on the filesystem.
+	
+	\subsubsection{\texttt{GET /get\_file/}\textit{filename}}
+	\textbf{Parameters}: \textbf{\texttt{filename}} The name of the file (as output by \texttt{/ls} above). \\
+	
+	\noindent Serves a raw file given by the filename through HTTP.
+	
+	\subsubsection{\texttt{GET /delete\_file/}\textit{filename}}
+	\textbf{Parameters}: \textbf{\texttt{filename}} The name of the file (as output by \texttt{/ls} above). \\
+	
+	\noindent Deletes a file given by the filename from the server.
+	
+	\subsubsection{\texttt{POST /upload}}
+	\textbf{Parameters}: \textbf{\texttt{file\_data}} The raw file data. \\
+	
+	\noindent Uploads a file to the file store.
 	
 	\subsection{Setup}
 	Run \texttt{./install.sh} in the \texttt{server} directory. You will need sudo privileges as well as a root MySQL database password, and will be prompted for these when required. If MySQL is not installed, it will be installed for you, with the root password being set to \texttt{team14}. \\

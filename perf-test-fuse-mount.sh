@@ -26,7 +26,6 @@ prepare_environment() {
     for (( i=1; i<=$NUM_SAMPLES; i++ )) do
         mv test_file$i.mp3 $TEST_SOURCE
     done
-    
 }
 
 # Cleanup generated files
@@ -50,8 +49,6 @@ perf_test() {
     # Time delta
     delta=$(python -c "print($X1 - $X0)")
     echo $delta,
-
-    fusermount -u $TEST_DESTINATION
 }
 
 prepare_build
@@ -60,6 +57,7 @@ prepare_environment
 # Do performance test NUM_SAMPLES times
 for (( i=1; i<=$NUM_SAMPLES; i++ )) do
     cp -f $TEST_SOURCE/test_file$i.mp3 $TEST_DESTINATION
+    fusermount -u $TEST_DESTINATION
     perf_test
 done
 

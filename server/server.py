@@ -86,8 +86,13 @@ def get_file(filename):
 def delete_file(filename):
     """Deletes a file."""
    
-    remove(path.join(app.config["UPLOAD_FOLDER"], filename)) 
-    db_delete_file(filename)
+    try:
+        remove(path.join(app.config["UPLOAD_FOLDER"], filename)) 
+        db_delete_file(filename)
+    except FileNotFoundError:
+        return "{0} does not exist on server.".format(filename)
+    except:
+        return "Could not delete {0}.".format(filename)
     return "Deleted {0}.".format(filename)
     
 @app.route("/web")
@@ -179,6 +184,5 @@ if __name__ == "__main__":
     if db: print("Connected to database!")
     app.run(
         host = "0.0.0.0",
-        port = SERV_PORT,
-        debug = True
+        port = SERV_PORT
     )

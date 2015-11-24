@@ -7,7 +7,7 @@
 \usepackage{dirtree} % Boring directory representation
 \usepackage{graphicx} % For figures
 \usepackage{wrapfig} % Wrapping text around figures
-\usepackage[margin=1.85in]{geometry} % Adjust page margins
+\usepackage[margin=1.81in]{geometry} % Adjust page margins
 \usepackage{pgfplots} % Plot normal distribution
 
 % Styling for directory graphics
@@ -108,14 +108,65 @@ sudo pip3 install stagger
 	\noindent Once the dependencies are installed, run \texttt{make} from the project root to build the client. Finally, run \texttt{./yourtuneslib <mountpoint>} to mount the filesystem to a local directory, with \texttt{<mountpoint>} being the path to an existing directory.
 	
 	\section{Server}
-	% TODO
+	The backing server serves as the file and metadata store for the filesystem. It provides an interface to list, add, and remove files as well as query for metadata. It runs on a MySQL database and Python web server under the Flask framework. \\
+	
+	\noindent Upon an upload, the server computes a SHA1 hash of the file data and uses the hash value as the raw filename in the data directory. The filename is used to uniquely identify an individual file. The metadata is then parsed and inserted along with the filename into the MySQL database, which is queried upon a call to \texttt{/ls} (see below).
 	
 	\subsection{Setup}
 	Run \texttt{./install.sh} in the \texttt{server} directory. You will need sudo privileges as well as a root MySQL database password, and will be prompted for these when required. If MySQL is not installed, it will be installed for you, with the root password being set to \texttt{team14}. \\
 	
 	\noindent Once the script completes, start the server by running \texttt{python3 server.py}.
 	
-	\section{Performance benchmarks}
+	\subsection{API}
+	\subsubsection{\texttt{GET /ls}}
+	\textbf{Parameters}: \textit{None.} \\
+	
+	\noindent Returns a recursive listing of all files on the filesystem, represented in JSON format. \\
+
+	\noindent\textbf{Example output}
+\begin{lstlisting}
+{
+  "albums": {
+    "Project 3": [
+      {
+        "filename": "93fb5d4840ea88f4174e5d03b63a577e4bc7fbaf.mp3",
+        "filesize": 43054,
+        "title": "Test Song",
+        "track": 1
+      }
+    ]
+  },
+  "decades": {
+    "2010": {
+      "Project 3": [
+        {
+          "filename": "93fb5d4840ea88f4174e5d03b63a577e4bc7fbaf.mp3",
+          "filesize": 43054,
+          "title": "Test Song",
+          "track": 1
+        }
+      ]
+    }
+  }
+}
+\end{lstlisting}
+	
+	\subsubsection{\texttt{GET /get\_file/}\textit{filename}}
+	\textbf{Parameters}: \textbf{\texttt{filename}} The name of the file (as output by \texttt{/ls} above). \\
+	
+	\noindent Serves a raw file given by the filename through HTTP.
+	
+	\subsubsection{\texttt{GET /delete\_file/}\textit{filename}}
+	\textbf{Parameters}: \textbf{\texttt{filename}} The name of the file (as output by \texttt{/ls} above). \\
+	
+	\noindent Deletes a file given by the filename from the server.
+	
+	\subsubsection{\texttt{POST /upload}}
+	\textbf{Parameters}: \textbf{\texttt{file\_data}} The raw file data. \\
+	
+	\noindent Uploads a file to the file store.
+	
+	\section{Performance benchmarks} % TODO measure mount delay + concurrency
 	Tests were performed with the included \texttt{perf-test-no-fuse.sh} and \\ \texttt{perf-test-with-fuse.sh} test programs, which measure nanosecond-precision performance copying a test file from a local source to destination. For the purposes of comparison, the first test copies the file to a local folder, and the second test copies the file to a local FUSE mountpoint (a remote destination). \\
 	
 	\noindent Run them with \texttt{./perf-test-no-fuse.sh} and \texttt{./perf-test-with-fuse.sh}, respectively.

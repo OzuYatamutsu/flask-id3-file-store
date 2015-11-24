@@ -16,15 +16,17 @@ cp -f $TEST_FILE $TEST_SOURCE
 echo "The following runtime deltas are reported in seconds."
 echo "Collecting $NUM_SAMPLES samples..."
 
-# Build project from scratch each time
+# Unmount + build project from scratch each time
 prepare_build() {
+    fusermount -u $TEST_DESTINATION
     make clean
     make all
 }
 
-# Cleanup destination each time
+# Cleanup destination each time and mount folder
 prepare_test() {
     rm -Rf $TEST_DESTINATION/*
+    ./yourtuneslib $TEST_DESTINATION
 }
 
 # Performance run

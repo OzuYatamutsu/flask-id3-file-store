@@ -59,8 +59,8 @@ def ls():
         try:
             decade = int(year)
             decade = str(decade - (decade % 10))
-        except ValueError:
-            # Couldn't parse the year
+        except (ValueError, TypeError):
+            # Couldn't parse the year (e.g. no metadata or strange date format)
             decade = "Unknown"
         
         if decade not in ls_dict["decades"]:

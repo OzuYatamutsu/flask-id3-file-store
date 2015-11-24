@@ -11,7 +11,7 @@ mkdir $TEST_SOURCE
 mkdir $TEST_DESTINATION
 
 # Move file into source
-cp -fv $TEST_FILE $TEST_SOURCE
+cp -f $TEST_FILE $TEST_SOURCE
 
 echo "The following runtime deltas are reported in seconds."
 echo "Collecting $NUM_SAMPLES samples..."
@@ -33,7 +33,7 @@ perf_test() {
     X0=$(date +%s.%N)
 
     # Copy file from source to destination
-    cp -fv $TEST_SOURCE/$TEST_FILE $TEST_DESTINATION
+    cp -f $TEST_SOURCE/$TEST_FILE $TEST_DESTINATION
 
     # Time after
     X1=$(date +%s.%N)
@@ -52,4 +52,4 @@ done
 
 # Clean up when done
 make clean > /dev/null
-rm -Rfv $TEST_FOLDER
+rm -Rf $TEST_FOLDER

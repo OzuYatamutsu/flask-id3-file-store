@@ -48,7 +48,9 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 	{
 		writeTmp = 0;
 		uploadFile(tmpPath);
-		getMetadataTree();
+		strcpy(tmpAttrPath, "");	
+		unlink(tmpPath);	
+		getMetadataTree();	
 	}
 	printf("getAttr path %s | tmpPath %s\n", path, tmpAttrPath);
 	memset(stbuf, 0, sizeof(struct stat));
@@ -59,7 +61,7 @@ static int ytl_getattr(const char *path, struct stat *stbuf)
 							  || strcmp(path, trashPath) == 0 
 							  || type == 1) 
 	{
-		stbuf->st_mode = S_IFDIR | 0755;	
+		stbuf->st_mode = S_IFDIR | 0777;	
 	} 
 	else if (type == 0) 
 	{
@@ -115,7 +117,6 @@ static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 static int ytl_mknod(const char *path, mode_t mode, dev_t rdev)
 {
-	int res;
 	if(strcmp(path, tmpAttrPath) != 0)
 	{
 		char* index;
@@ -131,9 +132,7 @@ static int ytl_mknod(const char *path, mode_t mode, dev_t rdev)
 		strcat(tmpPath, "/.cache");
 		strcat(tmpPath, path);
 		printf("TmpPath %s | tmpAttrPath %s\n", tmpPath, tmpAttrPath);
-		res = mknod(tmpPath, mode, rdev);
-		if (res == -1)
-			return -errno;
+		mknod(tmpPath, mode, rdev);
 	}
 	return 0;
 }
@@ -173,6 +172,7 @@ static int ytl_open(const char *path, struct fuse_file_info *fi)
 static int ytl_unlink(const char *path)
 {
 	printf("Trying to delete file %s\n", path);
+	deleteFile(path);
 	return 0;
 }
 
@@ -239,7 +239,7 @@ static int ytl_write(const char *path, const char *buf, size_t size,
 	if(strcmp(path, tmpAttrPath) == 0)
 	{	
 		writeTmp = 1;
-		fd = open(realPath, O_WRONLY);
+		fd = open(tmpPath, O_WRONLY);
 		if (fd == -1)
 			return -errno;
 
@@ -265,6 +265,13 @@ static int ytl_statfs(const char *path, struct statvfs *stbuf)
 	return 0;
 }
 
+static int ytl_readlink(const char *path, char *link, size_t size)
+{
+	ytl_realPath(link, path);
+    
+    return 0;
+}
+
 
 static struct fuse_operations ytl_oper = {
 	.getattr	= ytl_getattr,
@@ -279,7 +286,8 @@ static struct fuse_operations ytl_oper = {
 	.statfs		= ytl_statfs,
 	.unlink 	= ytl_unlink,
 	.utime		= ytl_utime,
-	.release 	= ytl_release
+	.release 	= ytl_release,
+	.readlink	= ytl_readlink
 };
 
 int main(int argc, char *argv[])

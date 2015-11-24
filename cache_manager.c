@@ -32,6 +32,35 @@ void uploadFile(char* path)
 	pclose(fp);  	
 }
 
+//Give path to cached file
+void getCacheName(char* cachePathBuf, const char* sortedPath)
+{
+	int i;
+
+	for(i = 0; i < MAX_META_ENTRIES; i++)
+	{
+		if(strcmp(sortedPath, meta_cache[i].sortedPath) == 0)
+		{
+			break;
+		}
+	}
+	//If it isn't found is bug
+	if(i == MAX_META_ENTRIES)
+	{
+		//printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
+		cachePathBuf[0] = 0;
+		return;
+	}	
+	if(meta_cache[i].isDir == 1)
+	{
+		cachePathBuf[0] = 0;
+		return;
+	}
+	//get the file from server since we probably going to use in near future
+	strcpy(cachePathBuf, meta_cache[i].cacheName);
+	return;
+}
+
 static void addMetaDirectory(char* parentDir, char* fileName)
 {
 	strncpy(meta_cache[metaCacheHead].parentDir, parentDir, MAX_PATH_LENGTH);
@@ -202,6 +231,28 @@ void getMetadataTree(void)
 		free(lineBuffer);
 }
 
+void deleteFile(const char* path)
+{
+	char command[MAX_PATH_LENGTH];
+	char cacheFilePath[MAX_PATH_LENGTH];
+	getCacheName(cacheFilePath, path);
+	FILE* fp;
+	printf("Deleting file %s\n", cacheFilePath);
+	strcpy(command,"curl \"http://localhost:9880/delete_file/");
+	strncat(command, cacheFilePath, MAX_PATH_LENGTH - strlen(command));	
+	strncat(command, "\"", MAX_PATH_LENGTH - strlen(command));	
+	printf("Delete command %s\n", command);
+	fp = popen(command, "r");
+	if(fp == NULL) 
+	{
+		printf("pipe error\n");
+		return;
+	}	
+	pclose(fp);  	
+	getMetadataTree();
+}
+
+
 char* getDirName(const char* rootDir)
 {
 	for(;dirOffset < MAX_META_ENTRIES && dirOffset >= 0 && dirOffset < metaCacheHead; dirOffset++)
@@ -297,7 +348,6 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 	strncat(cachePathBuf, strIndex, MAX_PATH_LENGTH - strlen(cachePathBuf));
 	//printf("For %s got cache path %s\n", sortedPath, cachePathBuf);
 }
-
 
 
 void initCache(void)

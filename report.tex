@@ -8,6 +8,7 @@
 \usepackage{graphicx} % For figures
 \usepackage{wrapfig} % Wrapping text around figures
 \usepackage[margin=1.85in]{geometry} % Adjust page margins
+\usepackage{pgfplots} % Plot normal distribution
 
 % Styling for directory graphics
 \definecolor{aliceblue}{rgb}{0.94, 0.97, 1.0}
@@ -112,4 +113,26 @@ sudo apt-get install -y libfuse-dev pkg-config mp3info curl jq
 	Run \texttt{./install.sh} in the \texttt{server} directory. You will need sudo privileges as well as a root MySQL database password, and will be prompted for these when required. If MySQL is not installed, it will be installed for you, with the root password being set to \texttt{team14}. \\
 	
 	\noindent Once the script completes, start the server by running \texttt{python3 server.py}.
+	
+	\section{Performance benchmarks}
+	Tests were performed with the included \texttt{perf-test-no-fuse.sh} and \\ \texttt{perf-test-with-fuse.sh} test programs, which measure nanosecond-precision performance copying a test file from a local source to destination. For the purposes of comparison, the first test copies the file to a local folder, and the second test copies the file to a local FUSE mountpoint (a remote destination). \\
+	
+	\noindent Run them with \texttt{./perf-test-no-fuse.sh} and \texttt{./perf-test-with-fuse.sh}, respectively.
+	
+	\vspace{0.25cm}
+	\noindent \input{data-graph} % TODO: This is a dummy graph for now
+	
+	\vspace{0.5cm}
+	\noindent \begin{tabular}{l*{4}{c}r}
+		& Min & Max & Mean & Std. Div. & \\
+		\hline
+		Copy to local folder & TODO s & TODO s & \textbf{TODO s} & \textbf{TODO s} &  \\
+		Copy to FUSE mountpoint & TODO s & TODO s & \textbf{TODO s} & \textbf{TODO s} &  \\
+		Distance           & +TODO s & +TODO s & \textbf{+TODO s} & \textbf{+TODO s} & \\
+	\end{tabular}
+
+	\vspace{0.25cm}
+	
+	\subsection{Analysis}
+	% TODO
 \end{document}

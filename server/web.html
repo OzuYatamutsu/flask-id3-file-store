@@ -8,7 +8,7 @@ a {
 
     color:#599bb3;
     font-family:Arial;
-    font-size:14px;
+    font-size:6vmin;
     font-weight:bold;
     text-decoration:none;
 }
@@ -23,13 +23,14 @@ li {
 
     color:#aaaaaa;
     font-family:Arial;
-    font-size:14px;
+    font-size:6vmin;
     font-weight:bold;
     text-decoration:none;
 }
 
 li.info {
     padding: 0px;
+    padding-left: 4vmin;
 }
 
 ul {
@@ -56,7 +57,7 @@ ul {
     cursor:pointer;
     color:#ffffff;
     font-family:Arial;
-    font-size:14px;
+    font-size:6vmin;
     font-weight:bold;
     padding:2px 16px;
     text-decoration:none;
@@ -79,75 +80,30 @@ ul {
 </style>
 
 <body>
-<a href="#" onclick="LoadFakeData()">[Press to load fake data]</a>
+<a href="#" onclick="document.getElementById('file_upload_btn').click()" class="linkbtn">Upload</a>
+<form action="upload" method="post" enctype="multipart/form-data">
+<input type="file" id="file_upload_btn" onchange="upload()" style="display: none;">
+</form>
+
 <script>
-function LoadFakeData() {
-json_ls = {
-  "albums": {
-    "The Black and White Album": [
-      {
-        "filename": "The_Hives_-_Hey_Little_World.mp3",
-        "filesize": 8116224,
-        "title": "Hey Little World",
-        "track": 5
-      },
-      {
-        "filename": "The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
-        "filesize": 6367232,
-        "title": "A Stroll Through Hive Manor Corridors",
-        "track": 6
-      }    
-    ],
-    "Tyrannosaurus Hives": [
-      {
-        "filename": "The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
-        "filesize": 2908160,
-        "title": "Two-Timing Touch And Broken Bones",
-        "track": 2
-      },
-      {
-        "filename": "The_Hives_-_Diabolic_Scheme.mp3",
-        "filesize": 4341839,
-        "title": "Diabolic Scheme",
-        "track": 8
-      }
-    ]
-  },
-  "decades": {
-    "2000": {
-      "The Black and White Album": [
-        {
-          "filename": "The_Hives_-_Hey_Little_World.mp3",
-          "filesize": 8116224,
-          "title": "Hey Little World",
-          "track": 5
-        },
-        {
-          "filename": "The_Hives_-_A_Stroll_Through_Hive_Manor_Co.mp3",
-          "filesize": 6367232,
-          "title": "A Stroll Through Hive Manor Corridors",
-          "track": 6
-        } 
-      ],
-      "Tyrannosaurus Hives": [
-        {
-          "filename": "The_Hives_-_Two-Timing_Touch_And_Broken_Bo.mp3",
-          "filesize": 2908160,
-          "title": "Two-Timing Touch And Broken Bones",
-          "track": 2
-        },
-        {
-          "filename": "The_Hives_-_Diabolic_Scheme.mp3",
-          "filesize": 4341839,
-          "title": "Diabolic Scheme",
-          "track": 8
-        }
-      ]
-    }
-  }
+var xhr = new XMLHttpRequest();
+
+function upload() {
+    var formData = new FormData();
+    formData.append("file_data", document.getElementById("file_upload_btn").files[0]);
+    xhr.open("post", "/upload", true);
+    xhr.send(formData);
 }
-document.body.removeChild(document.body.children[2]);
-Treeify(document.body, json_ls);
+
+xhr.onreadystatechange = function() {
+    if (xhr.readyState == 4) {
+        if (xhr.status == 200) {
+            alert("Upload successful!");
+            location.reload();
+        } else {
+            alert("Error uploading file: " + xhr.status + " (" + xhr.statusText + ")");
+        }
+    }
 }
 
 function Treeify(parent, obj) {
@@ -159,16 +115,19 @@ function Treeify(parent, obj) {
     for (var key in obj) {
         li = document.createElement("li");
         if (typeof(obj[key]) != "object" && typeof(obj[key]) != "array") {
-            if (key == "filename") {
+            if (key == "title") {
                 parent.children[0].className = "file";
                 parent.children[0].text = obj[key];
-                btn = document.createElement("a");
-                btn.className = "linkbtn";
-                btn.text = "Download";
-                btn.href = "get_file/" + obj[key];
-                parent.appendChild(btn);
                 continue;
             } else {
+                if (key == "filename") {
+                    btn = document.createElement("a");
+                    btn.className = "linkbtn";
+                    btn.text = "Play";
+                    btn.href = "get_file/" + obj[key];
+                    parent.appendChild(btn);
+                }
+
                 li.className = "info";
                 li.appendChild(document.createTextNode(key + " = " + obj[key]));
             }

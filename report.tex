@@ -95,6 +95,7 @@
 		
 	\section{Client}
 	% TODO
+	
 	\subsection{Setup}
 	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{mp3info}, \texttt{curl}, \texttt{jq}. Assuming a Debian-based system, these can be installed by running \\ \texttt{./install-deps.sh} or running the following command manually:
 	
@@ -105,4 +106,10 @@ sudo apt-get install -y libfuse-dev pkg-config mp3info curl jq
 	\noindent Once the dependencies are installed, run \texttt{make} from the project root to build the client. Finally, run \texttt{./yourtuneslib <mountpoint>} to mount the filesystem to a local directory, with \texttt{<mountpoint>} being the path to an existing directory.
 	
 	\section{Server}
+	% TODO
+	
+	\subsection{Setup}
+	Run \texttt{./install.sh} in the \texttt{server} directory. You will need sudo privileges as well as a root MySQL database password, and will be prompted for these when required. If MySQL is not installed, it will be installed for you, with the root password being set to \texttt{team14}. \\
+	
+	\noindent Once the script completes, start the server by running \texttt{python3 server.py}.
 \end{document}

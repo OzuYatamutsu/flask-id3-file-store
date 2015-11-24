@@ -118,13 +118,16 @@ function Treeify(parent, obj) {
             if (key == "title") {
                 parent.children[0].className = "file";
                 parent.children[0].text = obj[key];
-                btn = document.createElement("a");
-                btn.className = "linkbtn";
-                btn.text = "Play";
-                btn.href = "get_file/" + obj[key];
-                parent.appendChild(btn);
                 continue;
             } else {
+                if (key == "filename") {
+                    btn = document.createElement("a");
+                    btn.className = "linkbtn";
+                    btn.text = "Play";
+                    btn.href = "get_file/" + obj[key];
+                    parent.appendChild(btn);
+                }
+
                 li.className = "info";
                 li.appendChild(document.createTextNode(key + " = " + obj[key]));
             }

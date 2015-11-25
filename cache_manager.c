@@ -18,15 +18,15 @@ void uploadFile(char* path)
 {
 	char command[MAX_PATH_LENGTH];
 	FILE* fp;
-	printf("Uploading file %s\n", path);
+	//printf("Uploading file %s\n", path);
 	strcpy(command,"curl --form file_data=@");
 	strncat(command, path, MAX_PATH_LENGTH - strlen(command));
 	strncat(command, "  localhost:9880/upload", MAX_PATH_LENGTH - strlen(command));
-	printf("Upload command %s\n", command);
+	//printf("Upload command %s\n", command);
 	fp = popen(command, "r");
 	if(fp == NULL) 
 	{
-		printf("pipe error\n");
+		//printf("pipe error\n");
 		return;
 	}	
 	pclose(fp);  	
@@ -47,7 +47,7 @@ void getCacheName(char* cachePathBuf, const char* sortedPath)
 	//If it isn't found is bug
 	if(i == MAX_META_ENTRIES)
 	{
-		printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
+		//printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
 		cachePathBuf[0] = 0;
 		return;
 	}	
@@ -77,7 +77,7 @@ static void addMetaDirectory(char* parentDir, char* fileName)
 	meta_cache[metaCacheHead].isDir = 1;
 	meta_cache[metaCacheHead].isShared = 1;
 	
-	printf("Added directory parent:\"%s\" | name:\"%s\" | fullPath:\"%s\"\n", parentDir, fileName, meta_cache[metaCacheHead].sortedPath);
+	//printf("Added directory parent:\"%s\" | name:\"%s\" | fullPath:\"%s\"\n", parentDir, fileName, meta_cache[metaCacheHead].sortedPath);
 	
 	metaCacheHead = (metaCacheHead + 1);	
 	if(metaCacheHead == MAX_META_ENTRIES)
@@ -90,10 +90,10 @@ int isDir(const char* sortedPath)
 	
 	for(i = 0; i < MAX_META_ENTRIES && i < metaCacheHead; i++)
 	{
-		printf("COMPARE DIR  %s %s\n",meta_cache[i].sortedPath,sortedPath);
+		//printf("COMPARE DIR  %s %s\n",meta_cache[i].sortedPath,sortedPath);
 		if(strcmp(meta_cache[i].sortedPath, sortedPath) == 0)
 		{
-			printf("%s dir # %d\n", sortedPath, meta_cache[i].isDir);
+			//printf("%s dir # %d\n", sortedPath, meta_cache[i].isDir);
 			return meta_cache[i].isDir;
 		}
 	}
@@ -113,14 +113,14 @@ static void buildDirPath(char dirList[16][MAX_FILENAME_LENGTH], char* buf, int c
 		strncat(buf, dirList[i], MAX_PATH_LENGTH - strlen(buf));
 		
 	}
-	printf("Built path %s\n", buf);
+	//printf("Built path %s\n", buf);
 	
 }
 
 //Query for all metadata
 void getMetadataTree(void)
 {
-	printf("Building Metadata Tree\n");
+	//printf("Building Metadata Tree\n");
 	metaCacheHead = 0;
 	
 	FILE *fp;
@@ -137,7 +137,7 @@ void getMetadataTree(void)
 	fp = popen(GET_META_COMMAND, "r");
 	if(fp == NULL) 
 	{
-		printf("pipe error\n");
+		//printf("pipe error\n");
 		return;
 	}	
 	pclose(fp);  
@@ -155,24 +155,24 @@ void getMetadataTree(void)
 			{				
 				sscanf(lineBuffer, " \"filename\": \"%[^\n\"]", formattedLine);
 				strncpy(meta_cache[metaCacheHead].cacheName, formattedLine, MAX_PATH_LENGTH);
-				printf("GOT A FILENAME %s\n", formattedLine);
+				//printf("GOT A FILENAME %s\n", formattedLine);
 			}
 			else if(strcmp(formattedLine, "filesize") == 0)
 			{
 				sscanf(lineBuffer, " \"filesize\": %[^\n,]", formattedLine);
 				meta_cache[metaCacheHead].fileSize = atoi(formattedLine);
-				printf("GOT A FILESIZE %s\n", formattedLine);
+				//printf("GOT A FILESIZE %s\n", formattedLine);
 			}
 			else if(strcmp(formattedLine, "title") == 0)
 			{
 				sscanf(lineBuffer, " \"title\": \"%[^\n\"]", formattedLine);
 				strncpy(meta_cache[metaCacheHead].fileName, formattedLine, MAX_PATH_LENGTH);
-				printf("GOT A TITLE %s\n", formattedLine);
+				//printf("GOT A TITLE %s\n", formattedLine);
 			}
 			else if(strcmp(formattedLine, "track") == 0)
 			{
 				sscanf(lineBuffer, " \"track\": %[^\n,]", formattedLine);
-				printf("GOT A TRACK %s\n", formattedLine);								
+				//printf("GOT A TRACK %s\n", formattedLine);								
 				strncpy(newPath, formattedLine, MAX_FILENAME_LENGTH);
 				strncat(newPath, " - ", MAX_FILENAME_LENGTH - strlen(newPath));
 				strncat(newPath, meta_cache[metaCacheHead].fileName, MAX_FILENAME_LENGTH - strlen(newPath));
@@ -195,11 +195,11 @@ void getMetadataTree(void)
 			{
 				care = 0;
 				strncpy(directoryNesting[directoryLevel], formattedLine, MAX_FILENAME_LENGTH);				
-				printf("Adding %s to directory level %d\n", formattedLine, directoryLevel);
+				//printf("Adding %s to directory level %d\n", formattedLine, directoryLevel);
 				directoryLevel++;
 				buildDirPath(directoryNesting, newPath, directoryLevel-1);
 				addMetaDirectory(newPath, formattedLine);
-				//printf("Adding directory %s\n", newPath);
+				////printf("Adding directory %s\n", newPath);
 				//If we get a directory with a closing brace on same line it has to be either empty albums or empty decades
 				if(strpbrk(lineBuffer, "}") != NULL)
 				{
@@ -213,7 +213,7 @@ void getMetadataTree(void)
 			{
 				care = 1;
 				directoryLevel--;
-				printf("ENDED DIRECTORY ]\n");
+				//printf("ENDED DIRECTORY ]\n");
 			}
 			if(strpbrk(lineBuffer, "}") != NULL)
 			{
@@ -221,7 +221,7 @@ void getMetadataTree(void)
 				{
 					care = 0;
 					directoryLevel--;
-					printf("ENDED DIRECTORY }\n");
+					//printf("ENDED DIRECTORY }\n");
 				}
 			}
 		}	
@@ -239,15 +239,15 @@ void deleteFile(const char* path)
 	char cacheFilePath[MAX_PATH_LENGTH];
 	getCacheName(cacheFilePath, path);
 	FILE* fp;
-	printf("Deleting file %s\n", cacheFilePath);
+	//printf("Deleting file %s\n", cacheFilePath);
 	strcpy(command,"curl \"http://localhost:9880/delete_file/");
 	strncat(command, cacheFilePath, MAX_PATH_LENGTH - strlen(command));	
 	strncat(command, "\"", MAX_PATH_LENGTH - strlen(command));	
-	printf("Delete command %s\n", command);
+	//printf("Delete command %s\n", command);
 	fp = popen(command, "r");
 	if(fp == NULL) 
 	{
-		printf("pipe error\n");
+		//printf("pipe error\n");
 		return;
 	}	
 	pclose(fp);  	
@@ -259,7 +259,7 @@ char* getDirName(const char* rootDir)
 {
 	for(;dirOffset < MAX_META_ENTRIES && dirOffset >= 0 && dirOffset < metaCacheHead; dirOffset++)
 	{
-		printf("Comparing %s to %s at offset %d\n", meta_cache[dirOffset].parentDir, rootDir, dirOffset);
+		//printf("Comparing %s to %s at offset %d\n", meta_cache[dirOffset].parentDir, rootDir, dirOffset);
 		if(strcmp(meta_cache[dirOffset].parentDir, rootDir) == 0)
 		{
 			dirOffset++;
@@ -294,26 +294,26 @@ static void getFileInCache(char* fileName)
 	getCacheIndex(fileName, index);
 	if(strcmp(index, "-1") == 0)
 	{
-		printf("Getting file in cache %s\n", fileName);
+		//printf("Getting file in cache %s\n", fileName);
 		strncpy(command, "curl http://localhost:9880/get_file/", 256);
 		strncat(command, fileName, 256 - strlen(command));
 		strncat(command, " -o ~/.cache/ytl_cacheFile", 256 - strlen(command));
 		sprintf(index, "%d", fileCacheHead);
 		strncat(command, index, 256 - strlen(command));	
-		printf("command %s\n", command);
+		//printf("command %s\n", command);
 	
 		FILE *fp;
 		fp = popen(command, "r");
 		if(fp == NULL) 
 		{
-			printf("pipe error\n");
+			//printf("pipe error\n");
 			return;
 		}	
 		pclose(fp);  
 
 		strncpy(file_cache[fileCacheHead], fileName, MAX_FILENAME_LENGTH);
 		fileCacheHead = (fileCacheHead + 1)	% MAX_FILES_CACHED;
-		printf("Finished loading %s to %s\n",fileName, index);
+		//printf("Finished loading %s to %s\n",fileName, index);
 	}
 }
 
@@ -333,7 +333,7 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 	//If it isn't found is bug
 	if(i == MAX_META_ENTRIES)
 	{
-		printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
+		//printf("Meta Cache Problem, couldn't find %s\n", sortedPath);
 		cachePathBuf[0] = 0;
 		return;
 	}	
@@ -348,7 +348,7 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 	strncat(cachePathBuf, SERVER_ROOT, MAX_PATH_LENGTH - strlen(cachePathBuf));
 	getCacheIndex(meta_cache[i].cacheName, strIndex);
 	strncat(cachePathBuf, strIndex, MAX_PATH_LENGTH - strlen(cachePathBuf));
-	printf("For %s got cache path %s\n", sortedPath, cachePathBuf);
+	//printf("For %s got cache path %s\n", sortedPath, cachePathBuf);
 }
 
 

@@ -95,7 +95,9 @@
 	}
 		
 	\section{Client}
-	% TODO
+	The client program is built on FUSE, which allows specification of function pointers that implement core filesystem I/O functions through a \texttt{fuse\_operations} struct (e.g. \texttt{read()}, \texttt{write()}, \texttt{statfs()}...). When the filesystem is mounted to a local directory, metadata is requested from the server via a \texttt{HTTP GET} to \texttt{/ls} on the server\footnote{The client uses the \texttt{curl} utility for HTTP requests.}. The metadata is cached into a local cache directory, where it is parsed and used to build the structure detailed above. \\
+	
+	\noindent When a file is moved into the mountpoint, the client performs an \texttt{HTTP POST} to \texttt{/upload}. File accesses are handled via an \texttt{HTTP GET} to \texttt{/get\_file}, and removals are handled with an \texttt{HTTP GET} to \texttt{/delete\_file}. Upon any of these filesystem changes, \texttt{/ls} is queried again to download updated metadata from the server.
 	
 	\subsection{Setup}
 	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{mp3info}, \texttt{curl}, \texttt{jq}. In addition, to run the test performance scripts, the \texttt{python3} package is required, along with the \texttt{stagger} Python library. Assuming a Debian-based system, these can be installed by running \\ \texttt{./install-deps.sh} or running the following command manually:

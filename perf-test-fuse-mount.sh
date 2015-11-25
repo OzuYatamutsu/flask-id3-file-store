@@ -63,7 +63,13 @@ for (( i=1; i<=$NUM_SAMPLES; i++ )) do
 done
 
 # Clean up when done
-mysql -u ytfs_agent --password=team14 ytfs -e "DELETE FROM ytfs_meta;"
-rm -f server/data/*
+./yourtuneslib $TEST_DESTINATION
+
+for (( i=1; i<=$NUM_SAMPLES; i++ )) do
+    rm -fv "$TEST_DESTINATION/albums/Project 3/$(($i+1)) - Test Song$i.mp3"
+done
+
+sleep 1
+fusermount -u $TEST_DESTINATION
 make clean > /dev/null
 rm -Rf $TEST_FOLDER

@@ -18,15 +18,15 @@ void uploadFile(char* path)
 {
 	char command[MAX_PATH_LENGTH];
 	FILE* fp;
-	printf("Uploading file %s\n", path);
+	//printf("Uploading file %s\n", path);
 	strcpy(command,"curl --form file_data=@");
 	strncat(command, path, MAX_PATH_LENGTH - strlen(command));
 	strncat(command, "  localhost:9880/upload", MAX_PATH_LENGTH - strlen(command));
-	printf("Upload command %s\n", command);
+	//printf("Upload command %s\n", command);
 	fp = popen(command, "r");
 	if(fp == NULL) 
 	{
-		printf("pipe error\n");
+		//printf("pipe error\n");
 		return;
 	}	
 	pclose(fp);  	
@@ -77,7 +77,7 @@ static void addMetaDirectory(char* parentDir, char* fileName)
 	meta_cache[metaCacheHead].isDir = 1;
 	meta_cache[metaCacheHead].isShared = 1;
 	
-	//printf("Added directory parent:\"%s\" name:\"%s\" fullPath:\"%s\"\n", parentDir, fileName, meta_cache[metaCacheHead].sortedPath);
+	//printf("Added directory parent:\"%s\" | name:\"%s\" | fullPath:\"%s\"\n", parentDir, fileName, meta_cache[metaCacheHead].sortedPath);
 	
 	metaCacheHead = (metaCacheHead + 1);	
 	if(metaCacheHead == MAX_META_ENTRIES)
@@ -120,7 +120,7 @@ static void buildDirPath(char dirList[16][MAX_FILENAME_LENGTH], char* buf, int c
 //Query for all metadata
 void getMetadataTree(void)
 {
-	printf("Building Metadata Tree\n");
+	//printf("Building Metadata Tree\n");
 	metaCacheHead = 0;
 	
 	FILE *fp;
@@ -131,17 +131,17 @@ void getMetadataTree(void)
 	char formattedLine[MAX_PATH_LENGTH];
 	char newPath[MAX_PATH_LENGTH];
 	int directoryLevel = 0;
-	int care = 0;
+	int care = 1;
 
 	//Fetch raw json from server
 	fp = popen(GET_META_COMMAND, "r");
 	if(fp == NULL) 
 	{
-		printf("pipe error\n");
+		//printf("pipe error\n");
 		return;
 	}	
 	pclose(fp);  
-	fp = popen("cat ~/.cache/ytl_rawmeta.txt | jq .", "r");
+	fp = popen("cat ~/.cache/ytl_rawmeta.txt", "r");
 	while(!feof(fp))
 	{		
 		if(getline(&lineBuffer, &nBytes, fp) == -1)
@@ -199,11 +199,13 @@ void getMetadataTree(void)
 				directoryLevel++;
 				buildDirPath(directoryNesting, newPath, directoryLevel-1);
 				addMetaDirectory(newPath, formattedLine);
+				////printf("Adding directory %s\n", newPath);
+				//If we get a directory with a closing brace on same line it has to be either empty albums or empty decades
+				if(strpbrk(lineBuffer, "}") != NULL)
+				{
+					directoryLevel--;				
+				}
 			}
-			strncpy(newPath, "/albums/", MAX_PATH_LENGTH);
-			strncat(newPath, formattedLine, MAX_PATH_LENGTH - strlen(newPath));
-			//printf("Adding directory %s\n", newPath);			
-			
 		}
 		else
 		{		
@@ -237,15 +239,15 @@ void deleteFile(const char* path)
 	char cacheFilePath[MAX_PATH_LENGTH];
 	getCacheName(cacheFilePath, path);
 	FILE* fp;
-	printf("Deleting file %s\n", cacheFilePath);
+	//printf("Deleting file %s\n", cacheFilePath);
 	strcpy(command,"curl \"http://localhost:9880/delete_file/");
 	strncat(command, cacheFilePath, MAX_PATH_LENGTH - strlen(command));	
 	strncat(command, "\"", MAX_PATH_LENGTH - strlen(command));	
-	printf("Delete command %s\n", command);
+	//printf("Delete command %s\n", command);
 	fp = popen(command, "r");
 	if(fp == NULL) 
 	{
-		printf("pipe error\n");
+		//printf("pipe error\n");
 		return;
 	}	
 	pclose(fp);  	
@@ -304,7 +306,7 @@ static void getFileInCache(char* fileName)
 		fp = popen(command, "r");
 		if(fp == NULL) 
 		{
-			printf("pipe error\n");
+			//printf("pipe error\n");
 			return;
 		}	
 		pclose(fp);  

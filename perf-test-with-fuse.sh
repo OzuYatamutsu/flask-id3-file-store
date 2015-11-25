@@ -18,14 +18,15 @@ echo "Collecting $NUM_SAMPLES samples..."
 
 # Unmount + build project from scratch each time
 prepare_build() {
-    fusermount -u $TEST_DESTINATION
+    fusermount -u $TEST_DESTINATION > /dev/null
     make clean
     make all
 }
 
 # Cleanup destination each time and mount folder
 prepare_test() {
-    rm -Rf $TEST_DESTINATION/*
+    mysql -u ytfs_agent --password=team14 ytfs "DELETE FROM ytfs_meta;"
+    rm -f server/data/*
     ./yourtuneslib $TEST_DESTINATION
 }
 
@@ -50,8 +51,11 @@ for (( i=1; i<=$NUM_SAMPLES; i++ )) do
     prepare_build > /dev/null
     prepare_test > /dev/null
     perf_test
+    sleep 0.5
 done
 
 # Clean up when done
+prepare_test > /dev/null
+fusermount -u $TEST_DESTINATION > /dev/null
 make clean > /dev/null
 rm -Rf $TEST_FOLDER

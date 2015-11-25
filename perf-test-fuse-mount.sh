@@ -56,11 +56,20 @@ prepare_environment
 
 # Do performance test NUM_SAMPLES times
 for (( i=1; i<=$NUM_SAMPLES; i++ )) do
-    cp -f $TEST_SOURCE/test_file$i.mp3 $TEST_DESTINATION
-    fusermount -u $TEST_DESTINATION
     perf_test
+    mv -f $TEST_SOURCE/test_file$i.mp3 $TEST_DESTINATION
+    sleep 0.5
+    fusermount -u $TEST_DESTINATION
 done
 
 # Clean up when done
+./yourtuneslib $TEST_DESTINATION
+
+for (( i=1; i<=$NUM_SAMPLES; i++ )) do
+    rm -f "$TEST_DESTINATION/albums/Project 3/$(($i+1)) - Test Song$i.mp3"
+done
+
+sleep 1
+fusermount -u $TEST_DESTINATION
 make clean > /dev/null
 rm -Rf $TEST_FOLDER

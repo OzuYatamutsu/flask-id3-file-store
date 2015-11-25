@@ -80,9 +80,23 @@ static int ytl_access(const char *path, int mask)
 	return 0;
 }
 
+static int get_current_time_ms() {
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
 static int ytl_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 			   off_t offset, struct fuse_file_info *fi)
 {
+	// Rate-limit refresh for over-enthusiastic file browsers/users
+	static int last_time = 0;
+	int cur_time = get_current_time_ms();
+	if (cur_time - last_time > 200) {
+		getMetadataTree();
+		last_time = cur_time;
+	}
+
 	//This one can be hardcoded
 	if(strcmp(path, "/") == 0)
 	{

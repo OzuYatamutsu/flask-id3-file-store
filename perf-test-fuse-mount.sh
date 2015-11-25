@@ -1,5 +1,5 @@
 #!/bin/bash
-NUM_SAMPLES=50
+NUM_SAMPLES=10000
 TEST_FILE=test_file.mp3
 
 # Prepare testing environment

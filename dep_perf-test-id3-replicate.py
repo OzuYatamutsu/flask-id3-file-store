@@ -3,7 +3,7 @@ from stagger.id3 import *
 from shutil import copyfile
 
 TEST_FILE = "test_file.mp3"
-NUM_SAMPLES = 50
+NUM_SAMPLES = 10000
 
 def main():
     # Make NUM_SAMPLES copies of test file

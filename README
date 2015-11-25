@@ -1,0 +1,20 @@
+Building client
+---------------
+This project requires libfuse-dev, pkg-config, mp3info, curl, and jq 
+to be installed on the system. In addition, python3 and stagger 
+(from pip) are required to run the performance scripts.
+
+Run ./install-deps.sh to install all of these dependencies.
+Then, run make to build.
+
+Running server
+--------------
+In the server directory, configure server settings by editing config.json.
+Then, run the server: python3 server.py
+
+Running client
+--------------
+Run ./yourtuneslib <mountpoint>, where <mountpoint> is the path to 
+an existing directory to mount the filesystem to.
+
+The server must be running at time of mount.

@@ -1,44 +1,28 @@
 \begin{tikzpicture}
 \begin{axis}[
-  no markers, domain=0.230:0.280, samples=100,
+  no markers, domain=0.0005:0.0065, samples=100,
   axis lines*=left, xlabel=$t$, ylabel=$1$,
   hide y axis,
   every axis x label/.style={at=(current axis.right of origin),anchor=west},
-  height=5cm, width=\linewidth,
+  height=5cm, width=\textwidth,
   ytick=\empty,
   %xtick={0.253917}, ytick=\empty,
   enlargelimits=false, clip=false, axis on top,
   %grid = major % Will draw full horizontal lines
   ]
   
-  % Base sample (pthreads only)
-  % Mean=0.247245 s, stdiv=0.000812878 s, normalized PDF=E^(-756693. (-0.247245+x)^2)
+  \addplot [very thick,cyan!50!black, fill=red, fill opacity=0.5] {512.048 * e^(-823703 * (-0.00303433+x)^2)}; % Test CP
   
-  % Experimental sample (deadlock resolution)
-  % Mean=0.247453 s, stdiv=0.00191479 s, normalized PDF=208.348 E^(-136373. (-0.247453+x)^2)
+  \addplot [very thick,cyan!50!black, fill=cyan, fill opacity=0.5] {1813.75 * e^(-1.03349*10^7*((-0.00196389+x)^2))}; % Base CP
   
-  \addplot [very thick,cyan!50!black, fill=red, fill opacity=0.5] {e^(-136373 * (-0.247453+x)^2};
-  
-  \addplot [very thick,cyan!50!black, fill=cyan, fill opacity=0.5] {e^(-756693 * (-0.247245+x)^2};
-  
-  \node [
+\node [
 	  coordinate,
-	  pin={[pin edge={black}]135:{With deadlock avoidance}},
-	  style={xshift=-0.3cm}
-  ] 
-  at (axis cs:0.247245,0.6) {};
-  
-  \node [
-	  coordinate,
-	  pin={[pin edge={black}]50:{Without deadlock avoidance}},
-	  style={xshift=0.1cm}
-  ] 
-  at (axis cs:0.247245,0.5) {};
-  
-   % [pos=0.5,pin={\color{black}$\mu_1=0.247400\ s$}] {};
-   
-  
-  % [pos=0.5,pin={\color{black}$\mu_0=0.253917\ s$}] {};
-  %\addplot [very thick,black, domain=0.25065033:0.25718367]{0.5} node [pos=0.5,label=$\sigma_0\approx 0.003\ s$, style={yshift=-1cm}] {};
+	  pin={[pin edge={black}]135:{To local folder}},
+ ] at (axis cs:0.0017,500) {};
+ 
+\node [
+	coordinate,
+	pin={[pin edge={black}]90:{To filesystem}},
+] at (axis cs:0.00303433,600) {};
 \end{axis}
 \end{tikzpicture}

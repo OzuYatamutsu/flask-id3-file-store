@@ -169,7 +169,10 @@ sudo pip3 install stagger
 	\noindent Uploads a file to the file store.
 	
 	\section{Performance benchmarks} % TODO measure mount delay + concurrency
-	Tests were performed with the included \texttt{perf-test-no-fuse.sh} and \\ \texttt{perf-test-with-fuse.sh} test programs, which measure nanosecond-precision performance copying a test file from a local source to destination. For the purposes of comparison, the first test copies the file to a local folder, and the second test copies the file to a local FUSE mountpoint (a remote destination). \\
+	Three series of tests were performed to measure performance: file write latency, mount delay based on number of files existing on the server, and access delay based on number of concurrent connections. All tests measure nanosecond-precision delay of atomic operations (file write, filesystem mount, file read).
+	
+	\subsection{Write latency}
+	Tests were performed with the included \texttt{perf-test-no-fuse.sh} and \\ \texttt{perf-test-with-fuse.sh} test programs, which measure performance copying a test file from a local source to destination. For the purposes of comparison, the first test copies the file to a local folder, and the second test copies the file to a local FUSE mountpoint (a remote destination). \\
 	
 	\noindent Run them with \texttt{./perf-test-no-fuse.sh} and \texttt{./perf-test-with-fuse.sh}, respectively.
 	
@@ -185,8 +188,21 @@ sudo pip3 install stagger
 		Distance           & +TODO s & +TODO s & \textbf{+TODO s} & \textbf{+TODO s} & \\
 	\end{tabular}
 
-	\vspace{0.25cm}
+	\vspace{0.5cm} 
 	
-	\subsection{Analysis}
+	\noindent \textbf{Analysis}
+	% TODO
+	
+	
+	\subsection{Mount delay}
+	Tests were performed with the included \texttt{perf-test-fuse-mount.sh}, which generates audio files with distinct metadata and measures the delay in mounting the filesystem over gradual fill with the test files. \\
+	
+	\noindent To run the test, run \texttt{./perf-test-fuse-mount.sh}. \\
+	
+	\noindent \textbf{Analysis}
+	% TODO
+	\subsection{Concurrency delay}
+	
+	\noindent \textbf{Analysis}
 	% TODO
 \end{document}

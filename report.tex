@@ -169,7 +169,7 @@ sudo pip3 install stagger
 	\noindent Uploads a file to the file store.
 	
 	\section{Performance benchmarks} % TODO measure mount delay + concurrency
-	Two series of tests were performed to measure performance: file write latency and mount delay based on number of files existing on the server. Both tests measure nanosecond-precision delay of atomic operations (file write, filesystem mount).
+	Two series of tests were performed to measure performance: file write latency and mount delay based on number of files existing on the server. Both tests measure nanosecond-precision delay of atomic operations (file write, filesystem mount), and are run using a local backend server.
 	
 	\subsection{Write latency}
 	Tests were performed with the included \texttt{perf-test-no-fuse.sh} and \\ \texttt{perf-test-with-fuse.sh} test programs, which measure performance copying a test file from a local source to destination. For the purposes of comparison, the first test copies the file to a local folder, and the second test copies the file to a local FUSE mountpoint (a remote destination). \\
@@ -190,14 +190,19 @@ sudo pip3 install stagger
 
 	\vspace{0.5cm} 
 	
-	\noindent \textbf{Analysis}
-	% TODO
+	\noindent \textbf{Analysis} \\
+	Copying a file to the FUSE filesystem results in slightly higher latency, as there are additional costs associated with network I/O and post-copy metadata parsing.
 	
 	\subsection{Mount delay}
 	Tests were performed with the included \texttt{perf-test-fuse-mount.sh}, which generates audio files with distinct metadata and measures the delay in mounting the filesystem over gradual fill with the test files. \\
 	
-	\noindent To run the test, run \texttt{./perf-test-fuse-mount.sh}. \\
+	\noindent To run the test, run \texttt{./perf-test-fuse-mount.sh}.
 	
-	\noindent \textbf{Analysis}
+	\vspace{0.25cm}
+	\noindent \input{data-graph-2}
+	
+	\vspace{0.5cm}
+	
+	\noindent \textbf{Analysis} \\
 	% TODO
 \end{document}

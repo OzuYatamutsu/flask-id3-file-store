@@ -5,8 +5,9 @@
 #include <sys/types.h>
 #include "cache_manager.h"
 
+#define SERVER_ADDRESS "http://localhost:9880"
 #define SERVER_ROOT "/.cache/ytl_cacheFile"
-#define GET_META_COMMAND "curl -H \"Accept: application/json\" -H \"Content-Type: application/json\" http://localhost:9880/ls > ~/.cache/ytl_rawmeta.txt"
+#define GET_META_COMMAND "curl -H \"Accept: application/json\" -H \"Content-Type: application/json\" " SERVER_ADDRESS "/ls > ~/.cache/ytl_rawmeta.txt"
 
 static meta_cache_entry meta_cache[MAX_META_ENTRIES];
 static int metaCacheHead = 0;
@@ -21,7 +22,7 @@ void uploadFile(char* path)
 	//printf("Uploading file %s\n", path);
 	strcpy(command,"curl --form file_data=@");
 	strncat(command, path, MAX_PATH_LENGTH - strlen(command));
-	strncat(command, "  localhost:9880/upload", MAX_PATH_LENGTH - strlen(command));
+	strncat(command, "  " SERVER_ADDRESS "/upload", MAX_PATH_LENGTH - strlen(command));
 	//printf("Upload command %s\n", command);
 	fp = popen(command, "r");
 	if(fp == NULL) 
@@ -240,7 +241,7 @@ void deleteFile(const char* path)
 	getCacheName(cacheFilePath, path);
 	FILE* fp;
 	//printf("Deleting file %s\n", cacheFilePath);
-	strcpy(command,"curl \"http://localhost:9880/delete_file/");
+	strcpy(command,"curl \"" SERVER_ADDRESS "/delete_file/");
 	strncat(command, cacheFilePath, MAX_PATH_LENGTH - strlen(command));	
 	strncat(command, "\"", MAX_PATH_LENGTH - strlen(command));	
 	//printf("Delete command %s\n", command);
@@ -295,7 +296,7 @@ static void getFileInCache(char* fileName)
 	if(strcmp(index, "-1") == 0)
 	{
 		//printf("Getting file in cache %s\n", fileName);
-		strncpy(command, "curl http://localhost:9880/get_file/", 256);
+		strncpy(command, "curl " SERVER_ADDRESS "/get_file/", 256);
 		strncat(command, fileName, 256 - strlen(command));
 		strncat(command, " -o ~/.cache/ytl_cacheFile", 256 - strlen(command));
 		sprintf(index, "%d", fileCacheHead);

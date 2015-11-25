@@ -168,7 +168,9 @@ sudo pip3 install stagger
 	
 	\noindent Uploads a file to the file store.
 	
-	\section{Performance benchmarks} % TODO measure mount delay + concurrency
+	\pagebreak
+	
+	\section{Performance benchmarks} 
 	Two series of tests were performed to measure performance: file write latency and mount delay based on number of files existing on the server. Both tests measure nanosecond-precision delay of atomic operations (file write, filesystem mount), and are run using a local backend server.
 	
 	\subsection{Write latency}
@@ -193,6 +195,8 @@ sudo pip3 install stagger
 	\noindent \textbf{Analysis} \\
 	Copying a file to the FUSE filesystem results in slightly higher latency, as there are additional costs associated with network I/O and post-copy metadata parsing.
 	
+	\pagebreak
+	
 	\subsection{Mount delay}
 	Tests were performed with the included \texttt{perf-test-fuse-mount.sh}, which generates audio files with distinct metadata and measures the delay in mounting the filesystem over gradual fill with the test files. \\
 	
@@ -204,5 +208,5 @@ sudo pip3 install stagger
 	\vspace{0.5cm}
 	
 	\noindent \textbf{Analysis} \\
-	% TODO
+	Mount latency is linearly tied to the amount of files resident on the file system. This is likely due to the increased size of the metadata returned by the server on each mount, resulting in greater parse time.
 \end{document}

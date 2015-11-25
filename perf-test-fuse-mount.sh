@@ -56,11 +56,14 @@ prepare_environment
 
 # Do performance test NUM_SAMPLES times
 for (( i=1; i<=$NUM_SAMPLES; i++ )) do
-    cp -f $TEST_SOURCE/test_file$i.mp3 $TEST_DESTINATION
-    fusermount -u $TEST_DESTINATION
     perf_test
+    cp -f $TEST_SOURCE/test_file$i.mp3 $TEST_DESTINATION
+    sleep 0.5
+    fusermount -u $TEST_DESTINATION
 done
 
 # Clean up when done
+mysql -u ytfs_agent --password=team14 ytfs -e "DELETE FROM ytfs_meta;"
+rm -f server/data/*
 make clean > /dev/null
 rm -Rf $TEST_FOLDER

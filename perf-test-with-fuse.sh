@@ -25,7 +25,7 @@ prepare_build() {
 
 # Cleanup destination each time and mount folder
 prepare_test() {
-    mysql -u root --password=team14 ytfs "DELETE FROM ytfs_meta;"
+    mysql -u ytfs_agent --password=team14 ytfs "DELETE FROM ytfs_meta;"
     rm -f server/data/*
     ./yourtuneslib $TEST_DESTINATION
 }

@@ -1,5 +1,5 @@
 #!/bin/bash
-NUM_SAMPLES=10000
+NUM_SAMPLES=1000
 TEST_FILE=test_file.mp3
 
 # Prepare testing environment
@@ -58,7 +58,7 @@ prepare_environment
 for (( i=1; i<=$NUM_SAMPLES; i++ )) do
     perf_test
     mv -f $TEST_SOURCE/test_file$i.mp3 $TEST_DESTINATION
-    sleep 0.5
+    sleep 0.2
     fusermount -u $TEST_DESTINATION
 done
 

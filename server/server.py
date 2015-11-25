@@ -58,7 +58,7 @@ def ls():
         decade = 0
         try:
             decade = int(year)
-            decade = str(decade - (decade % 10))
+            decade = str(decade - (decade % 10)) + 's'
         except (ValueError, TypeError):
             # Couldn't parse the year (e.g. no metadata or strange date format)
             decade = "Unknown"

@@ -1,8 +1,8 @@
 Building client
 ---------------
-This project requires libfuse-dev, pkg-config, mp3info, curl, and jq 
-to be installed on the system. In addition, python3 and stagger 
-(from pip) are required to run the performance scripts.
+This project requires libfuse-dev, pkg-config, and curl to be  
+installed on the system. In addition, python3 and stagger (from 
+pip) are required to run the performance scripts.
 
 Run ./install-deps.sh to install all of these dependencies.
 Then, run make to build.

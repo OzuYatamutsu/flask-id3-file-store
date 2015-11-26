@@ -100,10 +100,10 @@
 	\noindent When a file is moved into the mountpoint, the client performs an \texttt{HTTP POST} to \texttt{/upload}. File accesses are handled via an \texttt{HTTP GET} to \texttt{/get\_file}, and removals are handled with an \texttt{HTTP GET} to \texttt{/delete\_file}. Upon any of these filesystem changes, \texttt{/ls} is queried again to download updated metadata from the server.
 	
 	\subsection{Setup}
-	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{mp3info}, \texttt{curl}, \texttt{jq}. In addition, to run the test performance scripts, the \texttt{python3} package is required, along with the \texttt{stagger} Python library. Assuming a Debian-based system, these can be installed by running \\ \texttt{./install-deps.sh} or running the following command manually:
+	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{curl}. In addition, to run the test performance scripts, the \texttt{python3} package is required, along with the \texttt{stagger} Python library. Assuming a Debian-based system, these can be installed by running \\ \texttt{./install-deps.sh} or running the following command manually:
 	
 \begin{lstlisting}[language=Bash]
-sudo apt-get install -y libfuse-dev pkg-config mp3info curl jq python3
+sudo apt-get install -y libfuse-dev pkg-config curl python3
 sudo pip3 install stagger
 \end{lstlisting}
 	

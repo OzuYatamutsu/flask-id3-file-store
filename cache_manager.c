@@ -288,10 +288,25 @@ static void getCacheIndex(char* fileName, char* buf)
 }
 
 //Read file into disk from server
-static void getFileInCache(char* fileName)
+void getFileInCache(const char* path)
 {
+	char fileName[MAX_FILENAME_LENGTH];//Server's filename(aka cache name);
+	int i;
 	char command[256];
 	char index[16];
+	for(i = 0; i < MAX_META_ENTRIES; i++)
+	{
+		if(strcmp(path, meta_cache[i].sortedPath) == 0)
+		{
+			strncpy(fileName, meta_cache[i].cacheName, MAX_FILENAME_LENGTH);
+			break;
+		}
+	}
+	//If it isn't found is bug
+	if(i == MAX_META_ENTRIES)
+	{
+		return;
+	}
 	getCacheIndex(fileName, index);
 	if(strcmp(index, "-1") == 0)
 	{
@@ -342,8 +357,6 @@ void getCachePath(char* cachePathBuf, const char* sortedPath)
 	{
 		return;
 	}
-	//get the file from server since we probably going to use in near future
-	getFileInCache(meta_cache[i].cacheName);
 	//all files are located in same directory, just append filename to root path
 	strncpy(cachePathBuf, getenv("HOME"), MAX_PATH_LENGTH);
 	strncat(cachePathBuf, SERVER_ROOT, MAX_PATH_LENGTH - strlen(cachePathBuf));

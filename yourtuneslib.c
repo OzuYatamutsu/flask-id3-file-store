@@ -172,6 +172,7 @@ static int ytl_chown(const char *path, uid_t uid, gid_t gid)
 static int ytl_open(const char *path, struct fuse_file_info *fi)
 {
 	//Both read/write open file themselves
+	getFileInCache(path);
 	return 0;
 }
 

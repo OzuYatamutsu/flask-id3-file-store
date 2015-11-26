@@ -27,5 +27,5 @@
 	void getMetadataTree(void);
 	void uploadFile(char* path);
 	void deleteFile(const char* path);
-
+	void getFileInCache(const char* path);
 #endif

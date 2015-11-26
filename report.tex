@@ -100,14 +100,18 @@
 	\noindent When a file is moved into the mountpoint, the client performs an \texttt{HTTP POST} to \texttt{/upload}. File accesses are handled via an \texttt{HTTP GET} to \texttt{/get\_file}, and removals are handled with an \texttt{HTTP GET} to \texttt{/delete\_file}. Upon any of these filesystem changes, \texttt{/ls} is queried again to download updated metadata from the server.
 	
 	\subsection{Setup}
-	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{curl}. In addition, to run the test performance scripts, the \texttt{python3} package is required, along with the \texttt{stagger} Python library. Assuming a Debian-based system, these can be installed by running \\ \texttt{./install-deps.sh} or running the following command manually:
+	The following packages are required: \texttt{libfuse-dev} \texttt{pkg-config}, \texttt{curl}. In addition, to run the test performance scripts, the \texttt{python3} package is required, along with the \texttt{stagger} Python library. Assuming a Debian-based system, these can be installed by running \texttt{./install-deps.sh} or running the following command manually:
 	
 \begin{lstlisting}[language=Bash]
 sudo apt-get install -y libfuse-dev pkg-config curl python3
 sudo pip3 install stagger
 \end{lstlisting}
 	
-	\noindent Once the dependencies are installed, run \texttt{make} from the project root to build the client. Finally, run \texttt{./yourtuneslib <mountpoint>} to mount the filesystem to a local directory, with \texttt{<mountpoint>} being the path to an existing directory.
+	\noindent Once the dependencies are installed, configure the base URI to the server by editing the \texttt{SERVER\_ROOT} \texttt{\#define} macro located at the top of \texttt{cache\_manager.c}:
+\begin{lstlisting}[language=C,firstnumber=9]
+#define SERVER_ADDRESS "http://localhost:9880"
+\end{lstlisting}
+	Then, run \texttt{make} from the project root to build the client. Finally, run \texttt{./yourtuneslib <mountpoint>} to mount the filesystem to a local directory, with \texttt{<mountpoint>} being the path to an existing directory.
 	
 	\section{Server}
 	The backing server serves as the file and metadata store for the filesystem. It provides an interface to list, add, and remove files as well as query for metadata. It runs on a MySQL database and Python web server under the Flask framework. \\
@@ -118,6 +122,8 @@ sudo pip3 install stagger
 	Run \texttt{./install.sh} in the \texttt{server} directory. You will need sudo privileges as well as a root MySQL database password, and will be prompted for these when required. If MySQL is not installed, it will be installed for you, with the root password being set to \texttt{team14}. \\
 	
 	\noindent Once the script completes, start the server by running \texttt{python3 server.py}.
+	
+	\pagebreak
 	
 	\subsection{API}
 	\subsubsection{\texttt{GET /ls}}

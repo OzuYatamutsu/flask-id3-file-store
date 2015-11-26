@@ -5,12 +5,19 @@ installed on the system. In addition, python3 and stagger (from
 pip) are required to run the performance scripts.
 
 Run ./install-deps.sh to install all of these dependencies.
+Then, change the SERVER_ADDRESS macro at the top of cache_manager.c to 
+point to the URI of the backing server (explained below).
+
 Then, run make to build.
 
 Running server
 --------------
 In the server directory, configure server settings by editing config.json.
 Then, run the server: python3 server.py
+
+The server will default to running on localhost on port 9880. 
+The SERVER_ADDRESS variable to configure on the client will then be of the 
+form: http://<server_ip_or_hostname>:9880/ 
 
 Running client
 --------------

@@ -120,7 +120,7 @@ sudo pip3 install stagger
 	\section{Server}
 	The backing server serves as the file and metadata store for the filesystem. It provides an interface to list, add, and remove files as well as query for metadata. It runs on a MySQL database and Python web server under the Flask framework. \\
 	
-	\noindent Upon an upload, the server computes a SHA1 hash of the file data and uses the hash value as the raw filename in the data directory. The filename is used to uniquely identify an individual file. The metadata is then parsed and inserted along with the filename into the MySQL database, which is queried upon a call to \texttt{/ls} (see below).
+	\noindent Upon an upload, the server computes a SHA1 hash of the file data and uses the hash value as the raw filename in the data directory. The filename is used to uniquely identify an individual file, as well as prevent identical files with different names from being stored. The metadata is then parsed and inserted along with the filename into the MySQL database, which is queried upon a call to \texttt{/ls} (see below).
 	
 	\subsection{Setup}
 	Run \texttt{./install.sh} in the \texttt{server} directory. You will need sudo privileges as well as a root MySQL database password, and will be prompted for these when required. If MySQL is not installed, it will be installed for you, with the root password being set to \texttt{team14}. \\

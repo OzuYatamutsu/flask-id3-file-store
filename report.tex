@@ -168,7 +168,17 @@ sudo pip3 install stagger
 	
 	\noindent Uploads a file to the file store.
 	
-	\pagebreak
+	\subsection{Web interface}
+	 
+	\begin{wrapfigure}{lh}{0.5\textwidth}
+		\centering
+		\vspace{-0.025\textheight}
+		\includegraphics[width=0.5\textwidth]{web-screenshot}
+		
+	\end{wrapfigure}
+	In addition, the server includes a web interface accessible at \texttt{/web.html}. In a use case which does not use the client FUSE binary (mobile devices, for example), the web interface allows users to access, delete, and upload files on the filesystem through HTTP.  It parses the same metadata as the base client, but constructs an HTML tree from the parsed JSON to represent the filesystem structure. File access, deletion, and upload are performed using the same API detailed above.
+
+	\pagebreak \restoregeometry
 	
 	\section{Performance benchmarks} 
 	Two series of tests were performed to measure performance: file write latency and mount delay based on number of files existing on the server. Both tests measure nanosecond-precision delay of atomic operations (file write, filesystem mount), and are run using a local backend server.

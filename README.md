@@ -1,5 +1,4 @@
-# YTFS filestore server
-This is the backend file store of YTFS.
+# Flask ID3 file store
  * The interface is powered by Python/Flask, and the metadata database is powered by MySQL.
  * Files are stored on the filesystem as normal, in a specified data directory.
  * All queries are done through a RESTful web interface (as detailed below).
@@ -9,7 +8,7 @@ This is the backend file store of YTFS.
 See `config.json` for server/database configuration variables.
 
 # Installation
-Run `install.sh`. This requires root system and database credentials (if `mysql-server` is already installed).
+Run `install.sh`. This requires root system and database credentials (if `mysql-server` is already installed). _Important: If `mysql-server` is not installed, it will be installed for you with a default password for the root account!_
 
 # API
 ## `GET` to `/ls`

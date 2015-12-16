@@ -104,3 +104,6 @@ Serves a raw file given by the filename through HTTP.
 **Parameters**: **`filename`** The name of the file (as provided by `/ls` above).
 
 Deletes a file given by the filename from the server.
+
+# `web.html`
+A frontend to perform the RESTful calls described above. Works with mobile devices (hopefully)!
